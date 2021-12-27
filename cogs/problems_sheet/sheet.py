@@ -72,6 +72,7 @@ class Sheet(commands.Cog):
         return inner
 
     # TODO should be a task that runs every N minutes
+    # ONLY FUNCTION THAT HAS TO BE CALLED
     @staticmethod
     def update_sheet():
         Sheet.uncheck_edited_submissions()
@@ -229,5 +230,3 @@ class Sheet(commands.Cog):
     def read_io_file(gdrive, id: str) -> str:
         contents = gdrive.files().get_media(fileId=id).execute()
         return contents
-
-Sheet.update_sheet()
