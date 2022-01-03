@@ -1,4 +1,4 @@
-token.env
+.env
 __pycache__
 members.db
 token.json

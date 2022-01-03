@@ -18,5 +18,5 @@ if __name__ == "__main__":
         if file.endswith(".py"):
             bot.load_extension(f"cogs.{file[:-3]}")
 
-    load_dotenv("token.env")
+    load_dotenv()
     bot.run(os.getenv('DISCORD_TOKEN'))
