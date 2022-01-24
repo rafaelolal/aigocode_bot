@@ -8,45 +8,49 @@ from discord.ext import commands
 class DB(commands.Cog):
     
     path = os.path.dirname(os.path.realpath(__file__))
-    conn = sqlite3.connect(path + '/' + 'members.db')
+    conn = sqlite3.connect(path + '/' + 'aigocode.db')
     # conn = sqlite3.connect(":memory:")
 
     c = conn.cursor()
 
     def __init__(self, bot):
         self.bot = bot
-    
+  
     @staticmethod
     def create_guild_table(guild_id: int) -> None:
         with DB.conn:
             DB.DB.c.execute(f"""CREATE TABLE {guild_id}
-                        (singeplayer integer,
-                         singeplayer_board integer,
-                         versus integer,
-                         versus_board integer,
-                         coop integer,
-                         coop_board integer,
-                         tictactoe integer,
-                         tictactoe_board integer,
-                         help text,
-                         help_baord integer,
-                         congratulations integer,
-                         warnings integer)""")
+                (members text,
+                 stats integer,
+                 singeplayer integer,
+                 singeplayer_board integer,
+                 versus integer,
+                 versus_board integer,
+                 coop integer,
+                 coop_board integer,
+                 tictactoe integer,
+                 tictactoe_board integer,
+                 help text,
+                 help_baord integer,
+                 congratulations integer,
+                 warnings integer)""")
 
     def create_member_table() -> None:
         with DB.conn:
             DB.DB.c.execute(f"""CREATE TABLE members
                         (id integer,
+                         guild integer,
                          singeplayer_wins integer,
                          versus_wins integer,
                          coop_wins integer,
+                         tictactoe_wins integer,
                          helped integer)""")
     
     @staticmethod
-    def add_member(id: int) -> None:
+    def add_member(id: int, guild: int) -> None:
         with DB.conn:
-            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?)",
-                (id, 0, 0, 0,))
+            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (id, guild, 0, 0, 0, 0, 0))
 
     @staticmethod
     def remove_member(id):
@@ -68,71 +72,6 @@ class DB(commands.Cog):
         with DB.conn:
             DB.c.execute("""UPDATE members SET name=? WHERE id=?""",
                         (name, id))
-    
-    @staticmethod
-    def add_evaluation(id, evaluation):
-        DB.c.execute("SELECT * FROM members WHERE id=?", (id,))
-        member = DB.c.fetchone()
-        
-        if member[2]:
-            evaluations = member[2] + "$$" + evaluation
-
-        else:
-            evaluations = evaluation
-
-        with DB.conn:
-            DB.c.execute("""UPDATE members SET evaluations=? WHERE id=?""",
-                        (evaluations, id))
-    
-    @staticmethod
-    def remove_evaluation(id, evaluation):
-        DB.c.execute("SELECT * FROM members WHERE id=?", (id,))
-        member = DB.c.fetchone()
-
-        evaluations = member[2].split('$$')
-        evaluations.remove('$'.join(evaluation))
-
-        with DB.conn:
-            DB.c.execute("""UPDATE members SET evaluations=? WHERE id=?""",
-                        ('$$'.join(evaluations), id))
-    
-    @staticmethod
-    def remove_evaluations(id):
-        with DB.conn:
-            DB.c.execute("""UPDATE members SET evaluations=? WHERE id=?""",
-                        ('', id))
-
-    #######################################################################
-    
-    @staticmethod
-    def add_evaluator(id, available, courses):
-        with DB.conn:
-            DB.c.execute("INSERT INTO evaluators VALUES (?, ?, ?)",
-                    (id, available, courses,))
-    
-            DB.c.execute("UPDATE members SET is_evaluator=? WHERE id=?",
-                (1, id))
-
-    @staticmethod
-    def remove_evaluator(id):
-        with DB.conn:
-            DB.c.execute("DELETE FROM evaluators WHERE id=?",
-                (id,))
-
-            DB.c.execute("UPDATE members SET is_evaluator=? WHERE id=?",
-                (0, id))
-
-    @staticmethod
-    def update_evaluator_availability(id, availability):
-        with DB.conn:
-            DB.c.execute("""UPDATE evaluators SET available=? WHERE id=?""",
-                        (availability, id))
-    
-    @staticmethod
-    def update_evaluator_courses(id, courses):
-        with DB.conn:
-            DB.c.execute("""UPDATE evaluators SET courses=? WHERE id=?""",
-                        (courses, id))
 
     #######################################################################
     
@@ -141,23 +80,13 @@ class DB(commands.Cog):
         with DB.conn:
             DB.c.execute("SELECT * FROM members")
             members = DB.c.fetchall()
-            DB.c.execute("SELECT * FROM evaluators")
-            evaluators = DB.c.fetchall()
 
-            return members, evaluators
+            return members
 
     @staticmethod
     def fetch_one(id):
         with DB.conn:
             DB.c.execute("SELECT * FROM members WHERE id=?",
-                (id,))
-
-            return DB.c.fetchone()
-
-    @staticmethod
-    def fetch_evaluator(id):
-        with DB.conn:
-            DB.c.execute("SELECT * FROM evaluators WHERE id=?",
                 (id,))
 
             return DB.c.fetchone()

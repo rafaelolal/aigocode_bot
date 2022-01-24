@@ -21,22 +21,24 @@
 import os
 from dotenv import load_dotenv
 import requests
+from faker import Faker
+import random
+
+f = Faker()
 
 load_dotenv()
 url = 'https://codingcomp.netlify.app/api/bot/postProblem'
 
-problem = {
-    "key": os.getenv("POST_API_KEY"),
-    "title": "Test Problem from Rafael",
-    "description": "Test description.",
-    "points": 50,
-    "difficulty": "Bronze",
-    "tags": "USACO, December, 2021",
-    "answer": [[["Input one", "output one"], ["Input two","output two"], ["Test case 2 input one","Test case 2 output one....."]], [[-2,-1], [-5, -4]]]
-}
+for i in range(40):
+    problem = {
+        "key": os.getenv("POST_API_KEY"),
+        "title": str(i) + " " + f.paragraph(nb_sentences=1),
+        "description": f.paragraph(nb_sentences=10),
+        "points": random.choice([25, 50, 75, 100]),
+        "difficulty": random.choice(['Bronze', 'Silver', 'Gold', 'Platinum']),
+        "tags": "USACO, " + random.choice(['recursive', 'divide and conquer', 'greedy', 'dynamic', 'brute force', 'backtracking']),
+        "answer": [[[0,"1"], [5,"6"], [7,"8"]], [[-2,"-1"], [-5, "-4"]]]
+    }
 
-response = requests.post(url, data = problem)
-
-print(response)
-print(dir(response))
-print(response.text)
+    response = requests.post(url, json=problem)
+    print(response)

@@ -3,8 +3,8 @@ from textwrap import dedent
 import discord
 from discord.channel import DMChannel
 from discord.ext import commands
-from singleplayer import PlaySingleplayer
 
+from cogs.singleplayer import PlaySingleplayer
 from db.db_management import DB
 
 class Events(commands.Cog):
