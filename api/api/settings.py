@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-@w8yi17uuthd!&eh04o59je54c(6cilh_20(hfbb!^8y#6vf-l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['defence-nv-disappointed-pin.trycloudflare.com']
-CSRF_TRUSTED_ORIGINS = ['https://defence-nv-disappointed-pin.trycloudflare.com/']
+ALLOWED_HOSTS = ['transmitted-redeem-friends-gc.trycloudflare.com']
+CSRF_TRUSTED_ORIGINS = ['https://transmitted-redeem-friends-gc.trycloudflare.com']
 
 # Application definition
 
