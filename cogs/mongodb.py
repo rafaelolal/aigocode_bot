@@ -1,6 +1,6 @@
-import pymongo
 import os
 from dotenv import load_dotenv
+import pymongo
 
 from discord.ext import commands
 

@@ -5,6 +5,41 @@ from discord.embeds import Embed
 from discord.ext import commands
 
 from cogs.mongodb import MongoDB
+from cogs.helpers import Helpers
+from db.db_management import DB
+
+class SingleplayerCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    @commands.is_owner()
+    async def add_singleplayer(self, ctx):
+        channel_id, message_id = DB.get_channel(ctx.guild.id, 'singleplayer')
+        if not channel_id:
+            msg = await ctx.send('\u200b', view=PlaySingleplayer(self.bot))
+            DB.update_guild(ctx.guild.id, "singleplayer", f"{ctx.channel.id}, {msg.id}")
+
+        else:
+            embed = Helpers.warning_embed("Invalid Action",
+                "This channel already has this feature.")
+            
+            await ctx.send(embed=embed, delete_after=5)
+
+    @commands.command()
+    @commands.is_owner()
+    async def remove_singleplayer(self, ctx):
+        channel_id, msg_id = DB.get_channel(ctx.guild.id, "singleplayer")
+        message = await Helpers.get_message(ctx, msg_id)
+        if message:
+            await message.delete()
+            DB.update_guild(ctx.guild.id, "singleplayer", ", ")
+
+        else:
+            embed = Helpers.warning_embed("Invalid Action",
+                "This feature is not present")
+    
+            await ctx.send(embed=embed, delete_after=5)
 
 class PlaySingleplayer(discord.ui.View):
     def __init__(self, bot):
@@ -24,42 +59,6 @@ class PlaySingleplayer(discord.ui.View):
         await interaction.user.send(embed=view.create_embed(0), view=view)
         await view.wait()
         self.playing_now.remove(interaction.user)
-
-class ProblemMenuSelect(discord.ui.Select):
-    def __init__(self):
-    
-        self.problems = [problem for problem in MongoDB.client['Problems'].find()]
-        self.page = 1
-        options = [discord.SelectOption(label=problem['title'], description=', '.join(problem['tags'])) for problem in self.problems[:25]]
-
-        super().__init__(placeholder='Pick a problem', min_values=1, max_values=1, options=options, row=0)
-
-    async def callback(self, interaction):
-        problem = self.get_problem()
-        await interaction.response.edit_message(embed=self.view.create_embed(0))
-
-    def get_problem(self):
-        if self.values:
-            info = [problem for problem in self.problems if problem['title'] == self.values[0]]
-            return info[0]
-
-    def scroll(self, direction):
-        scrolled = False
-        if direction == 'up' and self.page != 1:
-            scrolled = True
-            self.page -= 1
-
-        elif direction == 'down' and self.page < ceil(len(self.problems)/25):
-            scrolled = True
-            self.page += 1
-
-        if scrolled:
-            self.options = [discord.SelectOption(label=problem['title'], description=', '.join(problem['tags'])) for problem in self.problems[25*(self.page-1):25*self.page]]
-
-        else:
-            self.values.clear()
-
-        return scrolled
 
 class ProblemMenuView(discord.ui.View):
     def __init__(self, bot):
@@ -142,14 +141,40 @@ class ProblemMenuView(discord.ui.View):
     def f_tags(tags):
         return ', '.join(tags)
 
-class SingleplayerCommands(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-    
-    @commands.command()
-    @commands.is_owner()
-    async def update_singleplayer_button(self, ctx):
-        await ctx.send('\u200b', view=PlaySingleplayer(self.bot))
+class ProblemMenuSelect(discord.ui.Select):
+    def __init__(self):
+        self.problems = [problem for problem in MongoDB.client['Problems'].find()]
+        self.page = 1
+        options = [discord.SelectOption(label=problem['title'], description=', '.join(problem['tags'])) for problem in self.problems[:25]]
+
+        super().__init__(placeholder='Pick a problem', min_values=1, max_values=1, options=options, row=0)
+
+    async def callback(self, interaction):
+        problem = self.get_problem()
+        await interaction.response.edit_message(embed=self.view.create_embed(0))
+
+    def get_problem(self):
+        if self.values:
+            info = [problem for problem in self.problems if problem['title'] == self.values[0]]
+            return info[0]
+
+    def scroll(self, direction):
+        scrolled = False
+        if direction == 'up' and self.page != 1:
+            scrolled = True
+            self.page -= 1
+
+        elif direction == 'down' and self.page < ceil(len(self.problems)/25):
+            scrolled = True
+            self.page += 1
+
+        if scrolled:
+            self.options = [discord.SelectOption(label=problem['title'], description=', '.join(problem['tags'])) for problem in self.problems[25*(self.page-1):25*self.page]]
+
+        else:
+            self.values.clear()
+
+        return scrolled
 
 def setup(bot):
     bot.add_cog(SingleplayerCommands(bot))

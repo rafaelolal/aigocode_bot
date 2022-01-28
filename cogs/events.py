@@ -1,5 +1,5 @@
 from textwrap import dedent
-
+from datetime import datetime
 import discord
 from discord.channel import DMChannel
 from discord.ext import commands
@@ -12,6 +12,11 @@ class Events(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        self.bot.add_view(PlaySingleplayer(self.bot))
+        print(f"Bot connected OK on {datetime.today()}")
+
+    @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.name == self.bot.user.name:
             return
@@ -22,18 +27,21 @@ class Events(commands.Cog):
                 Visit our website for more information and practice.
                 > *website link missing*
                 
-                **If you have any questions, contact a Manager**
+                **If you have any questions, contact a sesrver admin**
                 *This bot does not respond to DMs*"""))
 
-    @staticmethod
     @commands.Cog.listener()
-    # TODO remove member from database
-    async def on_member_remove(member):
-        pass
+    async def on_member_join(self, member):
+        if not DB.fetch_one(member.id):
+            DB.add_member(member.id)
 
     @commands.Cog.listener()
-    async def on_ready(self):
-        self.bot.add_view(PlaySingleplayer(self.bot))
+    async def on_guild_join(self, guild):
+        if not DB.fetch_one(guild.id):
+            DB.add_guild(guild.id)
+            for member in guild.members:
+                if not DB.fetch_one(member.id):
+                    DB.add_member(member.id)
 
 def setup(bot):
     bot.add_cog(Events(bot))

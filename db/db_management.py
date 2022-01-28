@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from typing import List, Tuple, Union
 
 from discord.ext import commands
 
@@ -13,70 +14,98 @@ class DB(commands.Cog):
 
     c = conn.cursor()
 
+    channel_index_offset = 1
+    channels = ['stats',
+        'singleplayer', 'singleplayer_board',
+        'versus', 'versus_board',
+        'coop', 'coop_board',
+        'tictactoe', 'tictactoe_board',
+        'help', 'help_board']
+
     def __init__(self, bot):
         self.bot = bot
   
-    @staticmethod
-    def create_guild_table(guild_id: int) -> None:
+    @commands.command()
+    async def create_guilds_table(self, ctx) -> None:
         with DB.conn:
-            DB.DB.c.execute(f"""CREATE TABLE {guild_id}
-                (members text,
-                 stats integer,
-                 singeplayer integer,
-                 singeplayer_board integer,
-                 versus integer,
-                 versus_board integer,
-                 coop integer,
-                 coop_board integer,
-                 tictactoe integer,
-                 tictactoe_board integer,
+            DB.c.execute(f"""CREATE TABLE guilds
+                (id integer,
+                 stats text,
+                 singleplayer text,
+                 singleplayer_board text,
+                 versus text,
+                 versus_board text,
+                 coop text,
+                 coop_board text,
+                 tictactoe text,
+                 tictactoe_board text,
                  help text,
-                 help_baord integer,
-                 congratulations integer,
+                 help_baord text,
                  warnings integer)""")
 
-    def create_member_table() -> None:
+    @commands.command()
+    async def create_members_table(self, ctx) -> None:
         with DB.conn:
-            DB.DB.c.execute(f"""CREATE TABLE members
-                        (id integer,
-                         guild integer,
-                         singeplayer_wins integer,
-                         versus_wins integer,
-                         coop_wins integer,
-                         tictactoe_wins integer,
-                         helped integer)""")
-    
-    @staticmethod
-    def add_member(id: int, guild: int) -> None:
-        with DB.conn:
-            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (id, guild, 0, 0, 0, 0, 0))
+            DB.c.execute(f"""CREATE TABLE members
+                (id integer,
+                 singeplayer_wins integer,
+                 versus_wins integer,
+                 coop_wins integer,
+                 tictactoe_wins integer,
+                 helped integer)""")
+
+    #######################################################################
 
     @staticmethod
-    def remove_member(id):
+    def add_guild(id: int) -> None:
+        with DB.conn:
+            DB.c.execute("INSERT INTO guilds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (id, ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0,))
+
+    @staticmethod
+    def remove_guild(id: int) -> None:
+        with DB.conn:
+            DB.c.execute("DELETE FROM guilds WHERE id=?",
+                (id,))
+
+    @staticmethod
+    def update_guild(id: int, field: str, value: Union[str, int]) -> None:
+        with DB.conn:
+            DB.c.execute(f"""UPDATE guilds SET {field}=? WHERE id=?""",
+                (value, id))
+
+    @staticmethod
+    def get_channel(guild_id: int, channel_name: str) -> Tuple[int]:
+        with DB.conn:
+            DB.c.execute("""SELECT * FROM guilds WHERE id=?""",
+                (guild_id,))
+ 
+            guild = DB.c.fetchone()
+            channel_id, msg_id = guild[DB.channels.index(channel_name)+DB.channel_index_offset].split(', ')
+            # TODO this if-statement is horrible
+            if channel_id and msg_id:
+                return int(channel_id), int(msg_id)
+
+            return channel_id, msg_id
+
+    #######################################################################
+
+    @staticmethod
+    def add_member(id: int) -> None:
+        with DB.conn:
+            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?)",
+                (id, 0, 0, 0, 0, 0))
+
+    @staticmethod
+    def remove_member(id: int) -> None:
         with DB.conn:
             DB.c.execute("DELETE FROM members WHERE id=?",
                 (id,))
 
-            DB.c.execute("SELECT * FROM evaluators WHERE id=?",
-                (id,))
-            
-            evaluator = DB.c.fetchone()
-            if evaluator:
-                DB.c.execute("DELETE FROM evaluators WHERE id=?",
-                    (id,))
-
-
-    @staticmethod
-    def update_member_name(id, name):
-        with DB.conn:
-            DB.c.execute("""UPDATE members SET name=? WHERE id=?""",
-                        (name, id))
-
     #######################################################################
     
     @staticmethod
-    def fetch_all():
+    def fetch_all_members() -> List[List[int]]:
         with DB.conn:
             DB.c.execute("SELECT * FROM members")
             members = DB.c.fetchall()
@@ -84,12 +113,22 @@ class DB(commands.Cog):
             return members
 
     @staticmethod
-    def fetch_one(id):
+    def fetch_one(id: int) -> Union[List[Union[str, int]], None]:
         with DB.conn:
             DB.c.execute("SELECT * FROM members WHERE id=?",
                 (id,))
 
-            return DB.c.fetchone()
+            member = DB.c.fetchone()
+
+            DB.c.execute("SELECT * FROM guilds WHERE id=?",
+                (id,))
+
+            guild = DB.c.fetchone()
+
+            if member:
+                return member
+            elif guild:
+                return guild
 
 def setup(bot):
     bot.add_cog(DB(bot))

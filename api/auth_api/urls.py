@@ -1,14 +1,9 @@
-from django.urls import include, path
-from rest_framework import routers
-from . import views
+from django.urls import path
+from .views import *
 
-router = routers.DefaultRouter()
-router.register(r'heroes', views.HeroViewSet)
+app_name = 'api'
 
-# Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('my_view', views.my_view, name='my_view'),
+    path('', auth_api, name='auth_api'),
+    path('another_endpoint', another_endpoint, name='another_endpoint')
 ]
