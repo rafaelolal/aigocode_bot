@@ -4,7 +4,7 @@ import discord
 from discord.channel import DMChannel
 from discord.ext import commands
 
-from cogs.singleplayer import PlaySingleplayer
+from cogs.singleplayer import SingleplayerView
 from db.db_management import DB
 
 class Events(commands.Cog):
@@ -13,7 +13,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.bot.add_view(PlaySingleplayer(self.bot))
+        self.bot.add_view(SingleplayerView(self.bot))
         print(f"Bot connected OK on {datetime.today()}")
 
     @commands.Cog.listener()
