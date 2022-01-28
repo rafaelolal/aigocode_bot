@@ -17,14 +17,17 @@ class SingleplayerCommands(commands.Cog):
     async def add_singleplayer(self, ctx):
         channel_id, message_id = DB.get_channel(ctx.guild.id, 'singleplayer')
         if not channel_id:
-            msg = await ctx.send('\u200b', view=PlaySingleplayer(self.bot))
-            DB.update_guild(ctx.guild.id, "singleplayer", f"{ctx.channel.id}, {msg.id}")
+            msg = await ctx.send('\u200b',
+                view=SingleplayerView(self.bot))
+
+            DB.update_guild(ctx.guild.id, "singleplayer",
+                f"{ctx.channel.id}, {msg.id}")
 
         else:
             embed = Helpers.warning_embed("Invalid Action",
                 "This channel already has this feature.")
             
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, ephemeral=True)
 
     @commands.command()
     @commands.is_owner()
@@ -39,9 +42,9 @@ class SingleplayerCommands(commands.Cog):
             embed = Helpers.warning_embed("Invalid Action",
                 "This feature is not present")
     
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, ephemeral=True)
 
-class PlaySingleplayer(discord.ui.View):
+class SingleplayerView(discord.ui.View):
     def __init__(self, bot):
         super().__init__(timeout=None)
         self.bot = bot
@@ -56,7 +59,10 @@ class PlaySingleplayer(discord.ui.View):
         
         self.playing_now.append(interaction.user)
         view = ProblemMenuView(self.bot)
-        await interaction.user.send(embed=view.create_embed(0), view=view)
+        await interaction.channel.send(embed=view.create_embed(0),
+            view=view,
+            ephemeral=True)
+    
         await view.wait()
         self.playing_now.remove(interaction.user)
 
@@ -64,9 +70,6 @@ class ProblemMenuView(discord.ui.View):
     def __init__(self, bot):
         super().__init__(timeout=None)
         self.add_item(ProblemMenuSelect())
-
-    # async def interaction_check(self, interaction):
-    #     pass
 
     async def on_timeout(self):
         for item in self.children:
@@ -76,23 +79,27 @@ class ProblemMenuView(discord.ui.View):
     async def up(self, button, interaction):
         select = self.get_select()
         scrolled = select.scroll('up')
-        await interaction.response.edit_message(embed=self.create_embed(0, remove_problem=scrolled), view=self)
+        await interaction.response.edit_message(embed=self.create_embed(0,
+            remove_problem=scrolled),
+            view=self)
 
     @discord.ui.button(label='Down', style=discord.ButtonStyle.blurple, row=2)
     async def down(self, button, interaction):
         select = self.get_select()
         scrolled = select.scroll('down')
-        await interaction.response.edit_message(embed=self.create_embed(0, remove_problem=scrolled), view=self)
+        await interaction.response.edit_message(embed=self.create_embed(0,
+            remove_problem=scrolled),
+            view=self)
 
     @discord.ui.button(label='Begin!', style=discord.ButtonStyle.green, row=2)
     async def begin(self, button, interaction):
-        await interaction.message.edit(embed=self.create_embed(1), view=None, delete_after=5)
-        self.stop()
+        await interaction.message.edit(embed=self.create_embed(1),
+            view=None)
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=1)
     async def cancel(self, button, interaction):
-        await interaction.message.edit(embed=self.create_embed(2), view=None, delete_after=5)
-        self.stop()
+        await interaction.message.edit(embed=self.create_embed(2),
+            view=None)
 
     def get_select(self):
         for child in self.children:
@@ -107,15 +114,22 @@ class ProblemMenuView(discord.ui.View):
                 embed = Embed(title=problem['title'],
                     colour=discord.Colour.yellow())
 
-                embed.add_field(name='Difficulty', value=problem['difficulty'])
-                embed.add_field(name='Tags', value=self.f_tags(problem['tags']))
-                embed.add_field(name='Description', value=problem['description'], inline=False)
+                embed.add_field(name='Difficulty',
+                    value=problem['difficulty'])
+                
+                embed.add_field(name='Tags',
+                    value=self.f_tags(problem['tags']))
+                
+                embed.add_field(name='Description',
+                    value=problem['description'],
+                    inline=False)
 
             else:
                 embed = Embed(title="AiGoCode",
                     colour=discord.Colour.blue())
             
-                embed.add_field(name='No problem selected', value='\u200b')
+                embed.add_field(name='No problem selected',
+                    value='\u200b')
 
             embed.set_footer(text=self.get_page_range())
 
@@ -127,14 +141,18 @@ class ProblemMenuView(discord.ui.View):
             embed = Embed(title="Bye bye!",
                 colour=discord.Colour.red())
 
-        if status != 0:
-            embed.set_footer(text="menu will close in 5 seconds")
-
         return embed
 
     def get_page_range(self):
         select = self.get_select()
-        page_range = f"{(select.page-1)*25} - {len(select.problems) if select.page*25 > len(select.problems) else select.page*25} of {len(select.problems)}"
+        page_range = f"{(select.page-1)*25} - "
+        if select.page*25 > len(select.problems):
+            page_range += str(len(select.problems))
+
+        else:
+            page_range += str(select.page*25)
+
+        page_range += f" of {len(select.problems)}"
         return page_range
 
     @staticmethod
@@ -145,9 +163,12 @@ class ProblemMenuSelect(discord.ui.Select):
     def __init__(self):
         self.problems = [problem for problem in MongoDB.client['Problems'].find()]
         self.page = 1
-        options = [discord.SelectOption(label=problem['title'], description=', '.join(problem['tags'])) for problem in self.problems[:25]]
+        options = [discord.SelectOption(label=problem['title'],
+            description=', '.join(problem['tags'])) for problem in self.problems[:25]]
 
-        super().__init__(placeholder='Pick a problem', min_values=1, max_values=1, options=options, row=0)
+        super().__init__(placeholder='Pick a problem',
+            min_values=1, max_values=1,
+            options=options, row=0)
 
     async def callback(self, interaction):
         problem = self.get_problem()
@@ -169,7 +190,8 @@ class ProblemMenuSelect(discord.ui.Select):
             self.page += 1
 
         if scrolled:
-            self.options = [discord.SelectOption(label=problem['title'], description=', '.join(problem['tags'])) for problem in self.problems[25*(self.page-1):25*self.page]]
+            self.options = [discord.SelectOption(label=problem['title'],
+                description=', '.join(problem['tags'])) for problem in self.problems[25*(self.page-1):25*self.page]]
 
         else:
             self.values.clear()
