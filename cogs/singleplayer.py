@@ -55,11 +55,9 @@ class SingleplayerView(discord.ui.View):
 
     @discord.ui.button(label='Play Singleplayer', style=discord.ButtonStyle.blurple, custom_id='play_singleplayer')
     async def play_singleplayer(self, button, interaction):
-        await interaction.response.defer()
-        
         self.playing_now.append(interaction.user)
         view = ProblemMenuView(self.bot)
-        await interaction.channel.send(embed=view.create_embed(0),
+        await interaction.response.send_message(embed=view.create_embed(0),
             view=view,
             ephemeral=True)
     
@@ -93,12 +91,12 @@ class ProblemMenuView(discord.ui.View):
 
     @discord.ui.button(label='Begin!', style=discord.ButtonStyle.green, row=2)
     async def begin(self, button, interaction):
-        await interaction.message.edit(embed=self.create_embed(1),
+        await interaction.response.edit_message(embed=self.create_embed(1),
             view=None)
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=1)
     async def cancel(self, button, interaction):
-        await interaction.message.edit(embed=self.create_embed(2),
+        await interaction.response.edit_message(embed=self.create_embed(2),
             view=None)
 
     def get_select(self):
