@@ -18,8 +18,6 @@ mongo_path = path / 'cogs'
 if str(mongo_path) not in sys.path:
     sys.path.insert(1, str(mongo_path))
 
-print(sys.path)
-
 if __name__ == "__main__":
     for file in os.listdir(path / "cogs"):
         if file.endswith(".py"):
