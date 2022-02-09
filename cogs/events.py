@@ -4,8 +4,8 @@ import discord
 from discord.channel import DMChannel
 from discord.ext import commands
 
-from cogs.singleplayer import SingleplayerView
-from db.db_management import DB
+from cogs.features.singleplayer import SingleplayerView
+from cogs.db.db_management import DB
 
 class Events(commands.Cog):
     def __init__(self, bot):
