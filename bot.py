@@ -14,18 +14,15 @@ path = Path(__file__).resolve().parent
 if str(path) not in sys.path:
     sys.path.insert(1, str(path))
 
-mongo_path = path / 'cogs'
-if str(mongo_path) not in sys.path:
-    sys.path.insert(1, str(mongo_path))
-
 if __name__ == "__main__":
-    for file in os.listdir(path / "cogs"):
-        if file.endswith(".py"):
-            bot.load_extension(f"cogs.{file[:-3]}")
+    cogs = {
+    'cogs': ['helpers', 'events', 'mongodb'],
+    'cogs.db': ['db_management'],
+    'cogs.features': ['singleplayer', 'stats']}
 
-    for file in os.listdir(path / "db"):
-        if file.endswith(".py"):
-            bot.load_extension(f"db.{file[:-3]}")
+    for dir in cogs:
+        for cog in cogs[dir]:
+            bot.load_extension(f"{dir}.{cog}")
 
     load_dotenv()
     bot.run(os.getenv('DISCORD_TOKEN'))
