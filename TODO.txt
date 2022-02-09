@@ -1,9 +1,11 @@
+put my api endpoint up
+    actually just cloudflare it on the ssh server so I don't have to bother sangwoo
+    and get work done
+
+change all staticmethods to class methods if applicable
+
 Add problem id on the spreadsheet
 
-Make the singleplaye channel id for each guild
-    be the id of the channel and the id of the message with the view
-When removing making a channel not singleplayer anymore
-    delete the message with the stored id in the stored channel id
 Make it so that as people text in that channel, the message deletes itself
     and is sent again every 5 minutes or so
     every 5 minutes check if the last message has the id stored
