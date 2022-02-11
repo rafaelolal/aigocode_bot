@@ -13,7 +13,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.bot.add_view(SingleplayerView(self.bot))
+        self.bot.add_view(SingleplayerView())
         print(f"Bot connected OK on {datetime.today()}")
 
     @commands.Cog.listener()
