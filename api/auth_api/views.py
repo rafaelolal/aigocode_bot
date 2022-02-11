@@ -10,9 +10,9 @@ from django.urls import reverse
 
 
 load_dotenv()
-class MongoDB:
-
-    client = pymongo.MongoClient(
+class Mongo:
+    
+    db = pymongo.MongoClient(
         f"mongodb://aigocode:{os.getenv('MONGO_SECRET')}==@aigocode.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@aigocode@") \
         ['CodingComp']
 
@@ -43,7 +43,7 @@ def auth_api(request):
                 response = requests.request("POST", url, headers=headers, data=payload)
                 sub = response.json()["sub"]
                 
-                MongoDB.client['Users'].update_one({'token': sub}, {'$set': {'discordid': request.GET.get('id')}})
+                Mongo.db['Users'].update_one({'token': sub}, {'$set': {'discordid': request.GET.get('id')}})
 
                 return HttpResponseRedirect(reverse('api:discord'))
 
