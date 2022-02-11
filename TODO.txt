@@ -1,7 +1,3 @@
-put my api endpoint up
-    actually just cloudflare it on the ssh server so I don't have to bother sangwoo
-    and get work done
-
 change all staticmethods to class methods if applicable
 
 Add problem id on the spreadsheet
