@@ -16,8 +16,8 @@ if str(path) not in sys.path:
 
 if __name__ == "__main__":
     cogs = {
-    'cogs': ['helpers', 'events', 'mongodb'],
-    'cogs.db': ['db_management'],
+    'cogs': ['helpers', 'events'],
+    'cogs.db': ['db_management', 'mongodb'],
     'cogs.features': ['singleplayer', 'stats']}
 
     for dir in cogs:
