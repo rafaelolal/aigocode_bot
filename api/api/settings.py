@@ -25,14 +25,13 @@ SECRET_KEY = 'django-insecure-@w8yi17uuthd!&eh04o59je54c(6cilh_20(hfbb!^8y#6vf-l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['triumph-lover-frequent-resume.trycloudflare.com']
-CSRF_TRUSTED_ORIGINS = ['https://triumph-lover-frequent-resume.trycloudflare.com']
+ALLOWED_HOSTS = ['rosa-mechanical-transsexual-reed.trycloudflare.com']
+CSRF_TRUSTED_ORIGINS = ['https://rosa-mechanical-transsexual-reed.trycloudflare.com']
 
 # Application definition
 
 INSTALLED_APPS = [
     'auth_api',
-    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
