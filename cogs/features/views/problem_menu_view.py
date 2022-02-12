@@ -8,7 +8,6 @@ from features.items.login_button import LoginButton
 from cogs.db.mongodb import Mongo
 from .solve_view import SolveView
 
-
 class ProblemMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -23,7 +22,7 @@ class ProblemMenuView(discord.ui.View):
     async def up(self, button, interaction):
         select = self.get_select()
         scrolled = select.scroll('up')
-        await interaction.response.edit_message(embed=self.create_embed(0,
+        await interaction.response.edit_message(embed=self.response_embed(307,
             remove_problem=scrolled),
             view=self)
 
@@ -31,7 +30,7 @@ class ProblemMenuView(discord.ui.View):
     async def down(self, button, interaction):
         select = self.get_select()
         scrolled = select.scroll('down')
-        await interaction.response.edit_message(embed=self.create_embed(0,
+        await interaction.response.edit_message(embed=self.response_embed(307,
             remove_problem=scrolled),
             view=self)
 
@@ -47,7 +46,7 @@ class ProblemMenuView(discord.ui.View):
                 self.add_item(LoginButton(interaction.user.id))
                 self.add_item(button)
 
-                await interaction.response.edit_message(embed=self.create_embed(3),
+                await interaction.response.edit_message(embed=self.response_embed(401),
                     view=self)
 
             else:
@@ -56,10 +55,10 @@ class ProblemMenuView(discord.ui.View):
                     problem = select.get_problem()
 
                 view = SolveView(self, problem['_id'])
-                await interaction.user.send(embed=self.create_embed(11),
+                await interaction.user.send(embed=self.response_embed(201),
                     view=view)
                 
-                await interaction.response.edit_message(embed=self.create_embed(1),
+                await interaction.response.edit_message(embed=self.response_embed(200),
                     view=None)
                 
                 await view.wait()
@@ -68,7 +67,7 @@ class ProblemMenuView(discord.ui.View):
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=1)
     async def cancel(self, button, interaction):
-        await interaction.response.edit_message(embed=self.create_embed(2),
+        await interaction.response.edit_message(embed=self.response_embed(410),
             view=None)
         self.stop()        
 
@@ -77,11 +76,11 @@ class ProblemMenuView(discord.ui.View):
             if isinstance(child, discord.ui.Select):
                 return child
 
-    def create_embed(self, status: int, remove_problem: bool = False) -> Embed:
+    def response_embed(self, status: int, remove_problem: bool = False) -> Embed:
         select = self.get_select()
         if select:
             problem = select.get_problem()
-        if status == 0:
+        if status == 307:
             if problem and not remove_problem:
                 embed = Embed(title=problem['title'],
                     colour=discord.Colour.yellow())
@@ -107,12 +106,12 @@ class ProblemMenuView(discord.ui.View):
 
             embed.set_footer(text=self.get_page_range())
 
-        elif status == 1:
+        elif status == 200:
             embed = Embed(title="Problem has begun!",
                 description="Go to your DMs!",
                 colour=discord.Colour.green())
 
-        elif status == 11:
+        elif status == 201:
             embed = Embed(title=problem['title'],
                 description="Problem has begun!",
                 colour=discord.Colour.light_grey())
@@ -137,11 +136,11 @@ class ProblemMenuView(discord.ui.View):
                 value=problem['samples']['explanation'],
                 inline=False)
 
-        elif status == 2:
+        elif status == 410:
             embed = Embed(title="Bye bye!",
                 colour=discord.Colour.red())
 
-        elif status == 3:
+        elif status == 401:
             embed = Embed(title="Login",
                 colour=discord.Colour.blue())
 
