@@ -22,7 +22,7 @@ class Helpers(commands.Cog):
         embed = Embed(title="Warning", 
             color=Colour.red())
 
-        embed.set_footer(text="disappearing in 5 seconds")
+        embed.set_footer(text="closing in 5 seconds")
         embed.add_field(name=field_title, value=field_value)
 
         return embed
