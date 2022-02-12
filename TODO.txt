@@ -1,3 +1,5 @@
+BYE BYE EMBED DOES NOT DELETE ITSELF IN DM AFTER BEGINNING PROBLEM
+
 change all staticmethods to class methods if applicable
 
 Add problem id on the spreadsheet
