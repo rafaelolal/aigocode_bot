@@ -1,12 +1,6 @@
-from math import ceil
-from typing import Any, Dict, List
-import requests
-
 import discord
 from discord.ext import commands
 
-from cogs.helpers import Helpers
-from cogs.db.db_management import DB
 from .feature_cog import Feature
 from .views.problem_menu_view import ProblemMenuView
 
@@ -34,7 +28,7 @@ class SingleplayerView(discord.ui.View):
     async def play_singleplayer(self, button, interaction):
         self.playing_now.append(interaction.user)
         view = ProblemMenuView()
-        await interaction.response.send_message(embed=view.create_embed(0),
+        await interaction.response.send_message(embed=view.response_embed(307),
             view=view,
             ephemeral=True)
     
