@@ -21,15 +21,6 @@ class Events(commands.Cog):
         if message.author.name == self.bot.user.name:
             return
 
-        if isinstance(message.channel, DMChannel):
-            await message.author.send(dedent("""
-                Hello, I'm the AiGoCode bot!
-                Visit our website for more information and practice.
-                > *website link missing*
-                
-                **If you have any questions, contact a sesrver admin**
-                *This bot does not respond to DMs*"""))
-
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if not DB.fetch_one(member.id):
