@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from .feature_cog import Feature
-from .views.problem_menu_view import ProblemMenuView
+from views.problem_menu_view import ProblemMenuView
 
 class SingleplayerCommands(Feature):
     def __init__(self, bot):
