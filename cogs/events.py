@@ -1,10 +1,6 @@
-from textwrap import dedent
 from datetime import datetime
-import discord
-from discord.channel import DMChannel
 from discord.ext import commands
 
-from cogs.features.singleplayer import SingleplayerView
 from cogs.db.db_management import DB
 
 class Events(commands.Cog):
