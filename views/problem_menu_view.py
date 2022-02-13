@@ -12,7 +12,7 @@ class ProblemMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(ProblemMenuSelect())
-        self.is_problem_selected = False
+        self.problem_selected = None
 
     async def on_timeout(self):
         for item in self.children:
@@ -36,12 +36,11 @@ class ProblemMenuView(discord.ui.View):
 
     @discord.ui.button(label='Begin!', style=discord.ButtonStyle.green, row=2)
     async def begin(self, button, interaction):
-        if self.is_problem_selected:
+        if self.problem_selected:
             if not Mongo.db['Users'].count_documents(
                 {'discordid': str(interaction.user.id)}, limit = 1):
                 
-                for child in self.children:
-                    self.remove_item(child)
+                self.clear_items()
 
                 self.add_item(LoginButton(interaction.user.id))
                 self.add_item(button)
@@ -50,11 +49,7 @@ class ProblemMenuView(discord.ui.View):
                     view=self)
 
             else:
-                select = self.get_select()
-                if select:
-                    problem = select.get_problem()
-
-                view = SolveView(self, problem['_id'])
+                view = SolveView(self, self.problem_selected['_id'])
                 await interaction.user.send(embed=self.response_embed(201),
                     view=view)
                 
@@ -80,6 +75,7 @@ class ProblemMenuView(discord.ui.View):
         select = self.get_select()
         if select:
             problem = select.get_problem()
+        
         if status == 307:
             if problem and not remove_problem:
                 embed = Embed(title=problem['title'],
@@ -96,7 +92,7 @@ class ProblemMenuView(discord.ui.View):
                     inline=False)
 
             else:
-                self.is_problem_selected = False
+                self.problem_selected = None
 
                 embed = Embed(title="AiGoCode",
                     colour=discord.Colour.blue())
