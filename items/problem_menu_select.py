@@ -17,7 +17,7 @@ class ProblemMenuSelect(discord.ui.Select):
 
     async def callback(self, interaction):
         self.view.is_problem_selected = True
-        await interaction.response.edit_message(embed=self.view.create_embed(0))
+        await interaction.response.edit_message(embed=self.view.response_embed(307))
 
     def get_problem(self) -> str:
         if self.values:
