@@ -3,8 +3,8 @@ from typing import List
 import discord
 from discord import Embed
 
-from features.items.problem_menu_select import ProblemMenuSelect
-from features.items.login_button import LoginButton
+from items.problem_menu_select import ProblemMenuSelect
+from items.login_button import LoginButton
 from cogs.db.mongodb import Mongo
 from .solve_view import SolveView
 
