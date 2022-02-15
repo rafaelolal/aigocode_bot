@@ -20,7 +20,7 @@ class SolveView(discord.ui.View):
                 file = msg.attachments[-1]
                 embed = interaction.message.embeds[0]
                 try:
-                    content = (await file.read()).decode('utf-8', 'strict')
+                    (await file.read()).decode('utf-8', 'strict')
 
                 except UnicodeDecodeError:
                     embed = SolveView.response_embed(embed, 500)
@@ -30,16 +30,19 @@ class SolveView(discord.ui.View):
                     embed = SolveView.response_embed(embed, 102)
                     await interaction.message.edit(embed=embed)
                     response = await SolveView.run_file(file, str(interaction.user.id), self.problem_id)
-                    if response['correct'] == True:
+                    print(response)
+                    if 'errorMessage' in response:
+                        if 'Task timed out after' in response['errorMessage']:
+                            embed = SolveView.response_embed(embed, 408)
+
+                    elif response['correct'] == True:
                         if response['warn'] == True:
-                            embed = SolveView.response_embed(embed,
-                            208,
-                            msg=response['message'])
+                            embed = SolveView.response_embed(embed, 208)
                         
                         else:
-                            embed = SolveView.response_embed(embed,
-                                200,
-                                msg=response['message'])
+                            embed = SolveView.response_embed(embed, 200)
+
+                        self.disable_children()
 
                 await interaction.message.edit(embed=embed)
 
@@ -71,6 +74,10 @@ class SolveView(discord.ui.View):
             embed.description = "You have already solved this problem"
             embed.colour = Colour.dark_gold()
 
+        elif status == 408:
+            embed.description = "Your code is too slow!"
+            embed.colour = Colour.red()
+
         return embed
 
     @staticmethod
@@ -92,3 +99,7 @@ class SolveView(discord.ui.View):
 
         response = requests.post("https://codingcomp.netlify.app/api/bot/solve", json=json)
         return response.json()
+
+    def disable_children(self) -> None:
+        for child in self.children:
+            child.disabled = True
