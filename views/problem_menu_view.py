@@ -72,9 +72,7 @@ class ProblemMenuView(discord.ui.View):
                 return child
 
     def response_embed(self, status: int, remove_problem: bool = False) -> Embed:
-        select = self.get_select()
-        if select:
-            problem = select.get_problem()
+        problem = self.problem_selected
         
         if status == 307:
             if problem and not remove_problem:
@@ -107,9 +105,10 @@ class ProblemMenuView(discord.ui.View):
                 description="Go to your DMs!",
                 colour=discord.Colour.green())
 
+        # TODO maybe move this to solve_view.py
         elif status == 201:
             embed = Embed(title=problem['title'],
-                description="Problem has begun!",
+                description="You have unlimited submissions. After getting the correct response, this window will be deactivated.",
                 colour=discord.Colour.light_grey())
 
             embed.add_field(name='Difficulty',
