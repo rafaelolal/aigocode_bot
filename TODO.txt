@@ -1,5 +1,14 @@
-change all staticmethods to class methods if applicable
+Test user's code against sample and output traceback or program output
 
-Add problem id on the spreadsheet
+Work on problem Google Form
+    Add problem id on the spreadsheet
 
 Ensure a feature button is always the last message in a channel
+
+Add announcement channel
+
+Add instructions on how to use the bot
+    Help message, when atting the bot, 
+    Description
+
+Add maze game
