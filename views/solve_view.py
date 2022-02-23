@@ -7,44 +7,52 @@ from discord import Colour
 
 class SolveView(discord.ui.View):
     def __init__(self, problem_menu_view, problem_id):
+        super().__init__(timeout=None)
         self.problem_menu_view = problem_menu_view
         self.problem_id = problem_id
-        super().__init__(timeout=None)
+
+    async def interaction_check(self, interaction):
+        msgs = await interaction.channel.history(limit=1).flatten()
+        msg = msgs[0]
+
+        return interaction.message.author != msg.author and msg.attachments
 
     @discord.ui.button(label='Submit', style=discord.ButtonStyle.green)
     async def submit(self, button, interaction):
         msgs = await interaction.channel.history(limit=1).flatten()
         msg = msgs[0]
-        if msg != interaction.message:
-            if msg.attachments:
-                file = msg.attachments[-1]
-                embed = interaction.message.embeds[0]
-                try:
-                    (await file.read()).decode('utf-8', 'strict')
 
-                except UnicodeDecodeError:
-                    embed = SolveView.response_embed(embed, 500)
+        file = msg.attachments[-1]
+        embed = interaction.message.embeds[0]
+        try:
+            (await file.read()).decode('utf-8', 'strict')
 
+        except UnicodeDecodeError:
+            embed = self.response_embed(embed, 500)
+
+        else:
+            await interaction.response.defer()
+            embed = self.response_embed(embed, 102)
+            await interaction.message.edit(embed=embed)
+            response = await self.run_file(file, str(interaction.user.id), self.problem_id)
+            print(response)
+            if 'errorMessage' in response:
+                if 'Task timed out after' in response['errorMessage']:
+                    embed = self.response_embed(embed, 408)
+
+            elif response['correct'] == True:
+                if response['warn'] == True:
+                    embed = self.response_embed(embed, 208)
+                
                 else:
-                    await interaction.response.defer()
-                    embed = SolveView.response_embed(embed, 102)
-                    await interaction.message.edit(embed=embed)
-                    response = await SolveView.run_file(file, str(interaction.user.id), self.problem_id)
-                    print(response)
-                    if 'errorMessage' in response:
-                        if 'Task timed out after' in response['errorMessage']:
-                            embed = SolveView.response_embed(embed, 408)
+                    embed = self.response_embed(embed, 200)
 
-                    elif response['correct'] == True:
-                        if response['warn'] == True:
-                            embed = SolveView.response_embed(embed, 208)
-                        
-                        else:
-                            embed = SolveView.response_embed(embed, 200)
+                await self.disable(interaction)
 
-                        self.disable_children()
+            elif response['correct'] == False:
+                embed = self.response_embed(embed, 417)
 
-                await interaction.message.edit(embed=embed)
+        await interaction.message.edit(embed=embed)
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red)
     async def cancel(self, button, interaction):
@@ -59,7 +67,7 @@ class SolveView(discord.ui.View):
     @staticmethod
     def response_embed(embed: Embed, status: int) -> Embed:
         if status == 500:
-            embed.description = 'There was an error reading your file'
+            embed.description = 'There was an error reading your file. Try again'
             embed.colour = Colour.red()
 
         elif status == 102:
@@ -72,10 +80,14 @@ class SolveView(discord.ui.View):
 
         elif status == 208:
             embed.description = "You have already solved this problem"
-            embed.colour = Colour.dark_gold()
+            embed.colour = Colour.dark_green()
 
         elif status == 408:
-            embed.description = "Your code is too slow!"
+            embed.description = "Your code is too slow! Try again"
+            embed.colour = Colour.brand_red()
+
+        elif status == 417:
+            embed.description = "Incorrect input! Try again"
             embed.colour = Colour.red()
 
         return embed
@@ -100,6 +112,9 @@ class SolveView(discord.ui.View):
         response = requests.post("https://codingcomp.netlify.app/api/bot/solve", json=json)
         return response.json()
 
-    def disable_children(self) -> None:
+    async def disable(self, interaction) -> None:
         for child in self.children:
             child.disabled = True
+
+        self.stop()
+        await interaction.message.edit(view=self)
