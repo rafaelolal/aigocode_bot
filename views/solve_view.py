@@ -83,11 +83,11 @@ class SolveView(discord.ui.View):
             embed.colour = Colour.dark_green()
 
         elif status == 408:
-            embed.description = "Your code is too slow! Try again"
+            embed.description = "Your code timed out, porbably because it is too slow. Try again"
             embed.colour = Colour.brand_red()
 
         elif status == 417:
-            embed.description = "Incorrect input! Try again"
+            embed.description = "Incorrect answer! Try again"
             embed.colour = Colour.red()
 
         return embed
