@@ -4,8 +4,6 @@ from typing import List, Tuple, Union
 
 from discord.ext import commands
 
-# TODO create decorator call with_conn to avoid having to use a with statement everywhere
-
 class DB(commands.Cog):
     
     path = os.path.dirname(os.path.realpath(__file__))
