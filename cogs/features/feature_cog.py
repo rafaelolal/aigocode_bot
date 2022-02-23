@@ -12,7 +12,6 @@ class Feature(commands.Cog):
 
     @commands.is_owner()
     async def add_feature(self, ctx):
-        print(self.name, 'self.name')
         channel_id, message_id = DB.get_channel(ctx.guild.id,
             self.name)
         
