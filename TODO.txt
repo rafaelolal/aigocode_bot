@@ -1,10 +1,5 @@
-BYE BYE EMBED DOES NOT DELETE ITSELF IN DM AFTER BEGINNING PROBLEM
-
 change all staticmethods to class methods if applicable
 
 Add problem id on the spreadsheet
 
-Make it so that as people text in that channel, the message deletes itself
-    and is sent again every 5 minutes or so
-    every 5 minutes check if the last message has the id stored
-    if not, resend it
+Ensure a feature button is always the last message in a channel
