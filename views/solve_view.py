@@ -11,48 +11,44 @@ class SolveView(discord.ui.View):
         self.problem_menu_view = problem_menu_view
         self.problem_id = problem_id
 
-    async def interaction_check(self, interaction):
-        msgs = await interaction.channel.history(limit=1).flatten()
-        msg = msgs[0]
-
-        return interaction.message.author != msg.author and msg.attachments
-
     @discord.ui.button(label='Submit', style=discord.ButtonStyle.green)
     async def submit(self, button, interaction):
+        # TODO create a get message method?
         msgs = await interaction.channel.history(limit=1).flatten()
         msg = msgs[0]
 
-        file = msg.attachments[-1]
-        embed = interaction.message.embeds[0]
-        try:
-            (await file.read()).decode('utf-8', 'strict')
+        if interaction.message.author != msg.author and msg.attachments:
+            file = msg.attachments[-1]
+            embed = interaction.message.embeds[0]
+            try:
+                (await file.read()).decode('utf-8', 'strict')
 
-        except UnicodeDecodeError:
-            embed = self.response_embed(embed, 500)
+            except UnicodeDecodeError:
+                embed = self.response_embed(embed, 500)
 
-        else:
-            await interaction.response.defer()
-            embed = self.response_embed(embed, 102)
+            else:
+                await interaction.response.defer()
+                embed = self.response_embed(embed, 102)
+                await interaction.message.edit(embed=embed)
+                response = await self.run_file(file, str(interaction.user.id), self.problem_id)
+                print(response)
+                if 'errorMessage' in response:
+                    if 'Task timed out after' in response['errorMessage']:
+                        embed = self.response_embed(embed, 408)
+
+                elif response['correct'] == True:
+                    if response['warn'] == True:
+                        embed = self.response_embed(embed, 208, response['trace'][0]['trace'])
+                    
+                    else:
+                        embed = self.response_embed(embed, 200, response['trace'][0]['trace'])
+
+                    await self.disable(interaction)
+
+                elif response['correct'] == False:
+                    embed = self.response_embed(embed, 417)
+
             await interaction.message.edit(embed=embed)
-            response = await self.run_file(file, str(interaction.user.id), self.problem_id)
-            print(response)
-            if 'errorMessage' in response:
-                if 'Task timed out after' in response['errorMessage']:
-                    embed = self.response_embed(embed, 408)
-
-            elif response['correct'] == True:
-                if response['warn'] == True:
-                    embed = self.response_embed(embed, 208, response['trace'][0]['trace'])
-                
-                else:
-                    embed = self.response_embed(embed, 200, response['trace'][0]['trace'])
-
-                await self.disable(interaction)
-
-            elif response['correct'] == False:
-                embed = self.response_embed(embed, 417)
-
-        await interaction.message.edit(embed=embed)
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red)
     async def cancel(self, button, interaction):
@@ -61,7 +57,7 @@ class SolveView(discord.ui.View):
             colour=discord.Colour.red())
         embed.set_footer(text="closing in 5 seconds")
 
-        await interaction.message.edit(embed=embed, delete_after=5, view=None)
+        await interaction.message.edit(embed=embed, delete_after=5, view=None)        
         self.stop()
 
     @staticmethod
