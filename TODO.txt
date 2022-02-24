@@ -1,3 +1,6 @@
+ERROR
+seems like a new entry is being added to the DB whenever a guild joins
+
 Test user's code against sample and output traceback or program output
 
 Show status for each test case like USACO
