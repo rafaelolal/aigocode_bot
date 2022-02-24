@@ -42,10 +42,10 @@ class SolveView(discord.ui.View):
 
             elif response['correct'] == True:
                 if response['warn'] == True:
-                    embed = self.response_embed(embed, 208)
+                    embed = self.response_embed(embed, 208, response['trace'][0]['trace'])
                 
                 else:
-                    embed = self.response_embed(embed, 200)
+                    embed = self.response_embed(embed, 200, response['trace'][0]['trace'])
 
                 await self.disable(interaction)
 
@@ -65,7 +65,7 @@ class SolveView(discord.ui.View):
         self.stop()
 
     @staticmethod
-    def response_embed(embed: Embed, status: int) -> Embed:
+    def response_embed(embed: Embed, status: int, trace: list[bool] = None) -> Embed:
         if status == 500:
             embed.description = 'There was an error reading your file. Try again'
             embed.colour = Colour.red()
@@ -108,6 +108,11 @@ class SolveView(discord.ui.View):
             json['ilanguage'] = 'python3'
             json['iversion'] = '3.9.4'
             json['iextension'] = 'py'
+
+        elif lang == 'java':
+            json['ilanguage'] = 'java'
+            json['iversion'] = '15.0.2'
+            json['iextension'] = ''
 
         response = requests.post("https://codingcomp.netlify.app/api/bot/solve", json=json)
         return response.json()
