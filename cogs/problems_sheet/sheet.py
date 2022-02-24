@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 # types
 from typing import Dict, List
@@ -73,12 +73,18 @@ class Sheet(commands.Cog):
 
     # TODO should be a task that runs every N minutes
     # ONLY FUNCTION THAT HAS TO BE CALLED
+    @tasks.loop(minutes=5)
     @staticmethod
     def update_sheet():
         Sheet.uncheck_edited_submissions()
         Sheet.delete_all_confirmed()
         Sheet.move_all_confirmed()
+        # post or update problems in MongoDB
         Sheet.create_sheet_copy()
+
+    @update_sheet.before_loop
+    async def before_update_sheet(self):
+        await self.bot.wait_until_ready()
 
     # TODO change to use batchUpdate
     @with_spreadsheet
@@ -150,6 +156,11 @@ class Sheet(commands.Cog):
 
         if requests['requests']:
             spreadsheet.batchUpdate(spreadsheetId=Sheet.ID, body=requests).execute()
+
+    @staticmethod
+    def upload_to_mongo() -> None:
+        # TODO LOOK ON DISCORD FOR THE POST API, ADD PROBLEMS MANUALLY IN FOR NOW
+        pass
 
     @with_spreadsheet
     @staticmethod
