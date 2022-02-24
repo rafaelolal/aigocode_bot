@@ -24,7 +24,11 @@ class SingleplayerView(discord.ui.View):
         self.playing_now = []
 
     async def interaction_check(self, interaction):
-        return interaction.user not in self.playing_now
+        if interaction.user in self.playing_now:
+            interaction.response.send_message("Finish solving the problem you already started or cancel it to start another", ephemeral=True)
+            return False
+        
+        return True
 
     @discord.ui.button(label='Play Singleplayer', style=discord.ButtonStyle.blurple, custom_id='play_singleplayer')
     async def play_singleplayer(self, button, interaction):
