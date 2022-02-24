@@ -1,5 +1,7 @@
 Test user's code against sample and output traceback or program output
 
+Show status for each test case like USACO
+
 Work on problem Google Form
     Add problem id on the spreadsheet
 
