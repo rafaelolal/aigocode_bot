@@ -1,5 +1,6 @@
 from datetime import datetime
 from discord.ext import commands
+from discord import Embed, Colour
 
 from cogs.features.singleplayer import SingleplayerView
 from cogs.db.db_management import DB
@@ -30,6 +31,14 @@ class Events(commands.Cog):
             for member in guild.members:
                 if not DB.fetch_one(member.id):
                     DB.add_member(member.id)
+
+        for channel in guild.channels:
+            embed = Embed(title='AiGoCode Bot',
+                description='Click the title to visit aigocode.org',
+                colour=Colour.blue())
+
+            embed.add_field(name="Getting Started",
+                value='Hello, I am the AiGoCode Bot\n\nIf you are an admin, use "@AiGoCode Bot help"')
 
 def setup(bot):
     bot.add_cog(Events(bot))
