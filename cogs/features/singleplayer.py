@@ -25,7 +25,7 @@ class SingleplayerView(discord.ui.View):
 
     async def interaction_check(self, interaction):
         if interaction.user in self.playing_now:
-            interaction.response.send_message("Finish solving the problem you already started or cancel it to start another", ephemeral=True)
+            await interaction.response.send_message("Finish solving the problem you already started or cancel it to start another", ephemeral=True)
             return False
         
         return True
