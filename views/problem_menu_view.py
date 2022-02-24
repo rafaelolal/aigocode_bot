@@ -77,6 +77,7 @@ class ProblemMenuView(discord.ui.View):
         if status == 307:
             if problem and not remove_problem:
                 embed = Embed(title=problem['title'],
+                    url=f"https://www.aigocode.org/p/{problem['_id']}",
                     colour=discord.Colour.yellow())
 
                 embed.add_field(name='Difficulty',
@@ -108,6 +109,7 @@ class ProblemMenuView(discord.ui.View):
         # TODO maybe move this to solve_view.py
         elif status == 201:
             embed = Embed(title=problem['title'],
+                url=f"https://www.aigocode.org/p/{problem['_id']}",
                 description="Attach a file and press submit. After getting the correct response, this window will be deactivated.",
                 colour=discord.Colour.light_grey())
 
