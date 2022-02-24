@@ -9,10 +9,12 @@ class SingleplayerCommands(Feature):
         super().__init__(bot, 'singleplayer', SingleplayerView)
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def add_singleplayer(self, ctx):
         await super().add_feature(ctx)
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def remove_singleplayer(self, ctx):
         await super().remove_feature(ctx)
 
