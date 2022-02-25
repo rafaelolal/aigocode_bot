@@ -49,7 +49,7 @@ def auth_api(request):
                 
                 Mongo.db['Users'].update_one({'token': sub}, {'$set': {'discordid': request.GET.get('id')}})
 
-                return HttpResponseRedirect(reverse('api:discord'))
+                return HttpResponseRedirect('https://www.aigocode.org/returndiscord')
 
     return HttpResponse("AUTH API VIEW")
 
