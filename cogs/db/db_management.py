@@ -18,7 +18,8 @@ class DB(commands.Cog):
         'versus', 'versus_board',
         'coop', 'coop_board',
         'tictactoe', 'tictactoe_board',
-        'help', 'help_board']
+        'help', 'help_board',
+        'display']
 
     def __init__(self, bot):
         self.bot = bot
@@ -28,6 +29,7 @@ class DB(commands.Cog):
         with DB.conn:
             DB.c.execute(f"""CREATE TABLE guilds
                 (id integer,
+                 display text,
                  stats text,
                  singleplayer text,
                  singleplayer_board text,
@@ -46,6 +48,7 @@ class DB(commands.Cog):
         with DB.conn:
             DB.c.execute(f"""CREATE TABLE members
                 (id integer,
+                 projects text,
                  singeplayer_wins integer,
                  versus_wins integer,
                  coop_wins integer,
@@ -57,8 +60,8 @@ class DB(commands.Cog):
     @staticmethod
     def add_guild(id: int) -> None:
         with DB.conn:
-            DB.c.execute("INSERT INTO guilds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (id, ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0,))
+            DB.c.execute("INSERT INTO guilds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (id, ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0,))
 
     @staticmethod
     def remove_guild(id: int) -> None:
@@ -100,6 +103,41 @@ class DB(commands.Cog):
         with DB.conn:
             DB.c.execute("DELETE FROM members WHERE id=?",
                 (id,))
+
+    def get_user_by_project(message_id: int) -> List:
+        with DB.conn:
+            DB.c.execute("SELECT * FROM users WHERE projects LIKE ?",
+            (f"%{message_id}%",))
+        
+        return DB.c.fetchone()
+
+    def add_project_to_user(user_id: int, message_id: int) ->  None:
+        with DB.conn:
+            DB.c.execute("SELECT * FROM users where id=?", (user_id,))
+            user = DB.c.fetchone()
+
+            PROJECTS = 2
+            if user[PROJECTS]:
+                projects = user[PROJECTS] + f", {message_id}"
+
+            else:
+                projects = f"{message_id}"
+
+            DB.c.execute("UPDATE users SET projects=? WHERE id=?", (projects, user_id,))
+
+    def remove_project_from_user(user_id: int, message_id: int) -> None:
+        with DB.conn:
+            DB.c.execute("SELECT * FROM users WHERE id=?", (user_id,))
+            user = DB.c.fetchone()
+
+            PROJECTS = 2
+            projects = user[PROJECTS].split(', ')
+            if str(message_id) not in projects:
+                raise ValueError(f"user with user_id {user_id} does not contain project with message_id {message_id}")
+
+            projects.remove(str(message_id))
+            
+            DB.c.execute("UPDATE users SET projects=? WHERE id=?", (', '.join(projects), user_id,))
 
     #######################################################################
     
