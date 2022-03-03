@@ -85,9 +85,15 @@ class ProblemMenuView(discord.ui.View):
                 
                 embed.add_field(name='Tags',
                     value=self.f_tags(problem['tags']))
+
+                if len(problem['description']) > 1024:
+                    desc = "Sorry, the description of this problem is too long to be dislpayed in Discord. Click on the title to visit this project at aigocode.org."
+
+                else:
+                    desc = problem['description']
                 
                 embed.add_field(name='Description',
-                    value=problem['description'],
+                    value=desc,
                     inline=False)
 
             else:
@@ -106,11 +112,10 @@ class ProblemMenuView(discord.ui.View):
                 description="Go to your DMs!",
                 colour=discord.Colour.green())
 
-        # TODO maybe move this to solve_view.py
         elif status == 201:
             embed = Embed(title=problem['title'],
                 url=f"https://www.aigocode.org/p/{problem['_id']}",
-                description="Attach a file and press submit. After getting the correct response, this window will be deactivated.",
+                description="Attach a file and press submit. Your results for each test case will appear here.",
                 colour=discord.Colour.light_grey())
 
             embed.add_field(name='Difficulty',
@@ -119,14 +124,21 @@ class ProblemMenuView(discord.ui.View):
             embed.add_field(name='Tags',
                 value=self.f_tags(problem['tags']))
             
+            # TODO repeated code from status 307
+            if len(problem['description']) > 1024:
+                desc = "Sorry, the description of this problem is too long to be dislpayed in Discord. Click on the title to visit this project at aigocode.org."
+
+            else:
+                desc = problem['description']
+            
             embed.add_field(name='Description',
-                value=problem['description'],
+                value=desc,
                 inline=False)
             
             for i, sample in enumerate(problem['samples']['inAndOut']):
-                embed.add_field(name=f"Sample {i} Input",
+                embed.add_field(name=f"Sample Input",
                     value=sample[0])
-                embed.add_field(name=f"Sample {i} Output",
+                embed.add_field(name=f"Sample Output",
                     value=sample[1])
 
             embed.add_field(name='Explanation',

@@ -13,7 +13,6 @@ class SolveView(discord.ui.View):
 
     @discord.ui.button(label='Submit', style=discord.ButtonStyle.green)
     async def submit(self, button, interaction):
-        # TODO create a get message method?
         msgs = await interaction.channel.history(limit=1).flatten()
         msg = msgs[0]
 
@@ -30,29 +29,19 @@ class SolveView(discord.ui.View):
                 await interaction.response.defer()
                 embed = self.response_embed(embed, 102)
                 await interaction.message.edit(embed=embed)
+                
                 response = await self.run_file(file, str(interaction.user.id), self.problem_id)
                 print(response)
-                if 'errorMessage' in response:
-                    if 'Task timed out after' in response['errorMessage']:
-                        embed = self.response_embed(embed, 408)
 
-                elif response['correct'] == True:
-                    if response['warn'] == True:
-                        embed = self.response_embed(embed, 208, response['trace'][0]['trace'])
-                    
-                    else:
-                        embed = self.response_embed(embed, 200, response['trace'][0]['trace'])
+                embed = self.response_embed(embed, 200, response['trace'])
 
-                    await self.disable(interaction)
-
-                elif response['correct'] == False:
-                    embed = self.response_embed(embed, 417)
+                if embed.colour == Colour.green():
+                    self.disable(interaction)
 
             await interaction.message.edit(embed=embed)
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red)
     async def cancel(self, button, interaction):
-        # TODO REPEATED CODE code comes from helpers
         embed = Embed(title="Bye bye!",
             colour=discord.Colour.red())
         embed.set_footer(text="closing in 5 seconds")
@@ -71,20 +60,31 @@ class SolveView(discord.ui.View):
             embed.colour = Colour.yellow()
 
         elif status == 200:
-            embed.description = "Correct!"
-            embed.colour = Colour.green()
+            desc = ''
+            for test_case in enumerate(trace):
+                case_results = []
+                for case in test_case[1]['responses']:
+                    if 'Traceback' in case['got']:
+                        case_results.append('⚠️')
+                        if test_case[1]['test case'] == 0 and case['case'] == 0:
+                            desc = case['got']
+                    
+                    elif case['correct']:
+                        case_results.insert(case['case'], '✅')
+                            
+                    elif not case['correct']:
+                        case_results.insert(case['case'], '🛑')
 
-        elif status == 208:
-            embed.description = "You have already solved this problem"
-            embed.colour = Colour.dark_green()
+                if not desc:
+                    desc += ' '.join(case_results) + "\n"
 
-        elif status == 408:
-            embed.description = "Your code timed out, porbably because it is too slow. Try again"
-            embed.colour = Colour.brand_red()
+            embed.description = desc
 
-        elif status == 417:
-            embed.description = "Incorrect answer! Try again"
-            embed.colour = Colour.red()
+            if '⚠️' in desc or '🛑' in desc or 'Traceback' in desc:
+                embed.colour = Colour.red()
+
+            else:
+                embed.colour = Colour.green()
 
         return embed
 

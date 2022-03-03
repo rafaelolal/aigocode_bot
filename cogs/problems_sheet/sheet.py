@@ -71,7 +71,6 @@ class Sheet(commands.Cog):
             
         return inner
 
-    # TODO should be a task that runs every N minutes
     # ONLY FUNCTION THAT HAS TO BE CALLED
     @tasks.loop(minutes=5)
     @staticmethod
