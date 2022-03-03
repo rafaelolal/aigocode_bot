@@ -82,11 +82,10 @@ class DB(commands.Cog):
             channel_id, msg_id = guild[DB.channels.index(channel_name) \
                 + DB.channel_index_offset].split(', ')
             
-            # TODO this if-statement is horrible
             if channel_id and msg_id:
                 return int(channel_id), int(msg_id)
 
-            return channel_id, msg_id
+            return None, None
 
     #######################################################################
 
