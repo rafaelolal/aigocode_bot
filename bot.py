@@ -20,10 +20,12 @@ if __name__ == "__main__":
     cogs = {
     'cogs': ['helpers', 'events'],
     'cogs.db': ['db_management', 'mongodb'],
-    'cogs.features': ['singleplayer'],}
+    'cogs.features': ['feature_manager'],
+    'cogs.features.features': ['singleplayer'],}
 
     for dir in cogs:
         for cog in cogs[dir]:
+            print(f"{dir}.{cog}")
             bot.load_extension(f"{dir}.{cog}")
 
     load_dotenv()
