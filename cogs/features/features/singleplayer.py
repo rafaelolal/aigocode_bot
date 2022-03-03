@@ -8,14 +8,12 @@ class SingleplayerCommands(Feature):
     def __init__(self, bot):
         super().__init__(bot, 'singleplayer', SingleplayerView)
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def add_singleplayer(self, ctx):
+    @staticmethod
+    async def add_singleplayer(ctx):
         await super().add_feature(ctx)
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def remove_singleplayer(self, ctx):
+    @staticmethod
+    async def remove_singleplayer(ctx):
         await super().remove_feature(ctx)
 
 class SingleplayerView(discord.ui.View):

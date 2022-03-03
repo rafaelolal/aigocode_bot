@@ -10,7 +10,6 @@ class Feature(commands.Cog):
         self.name = name
         self.view = view
 
-    @commands.is_owner()
     async def add_feature(self, ctx):
         channel_id, message_id = DB.get_channel(ctx.guild.id,
             self.name)
@@ -26,7 +25,6 @@ class Feature(commands.Cog):
             
             await ctx.send(embed=embed, delete_after=5)
 
-    @commands.is_owner()
     async def remove_feature(self, ctx):
         channel_id, msg_id = DB.get_channel(ctx.guild.id, self.name)
         message = await Helpers.get_message(ctx, msg_id)

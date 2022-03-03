@@ -9,11 +9,9 @@ class StatsCommands(Feature):
     def __init__(self, bot):
         super().__init__(bot, 'stats', StatsView)
 
-    @commands.command()
     async def add_stats(self, ctx):
         await super().add_feature(ctx)
 
-    @commands.command()
     async def remove_stats(self, ctx):
         await super().remove_feature(ctx)
 
