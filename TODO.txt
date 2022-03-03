@@ -1,19 +1,19 @@
 ERROR
 seems like a new entry is being added to the DB whenever a guild joins
 
-Test user's code against sample and output traceback or program output
-
-Show status for each test case like USACO
-
-Work on problem Google Form
-    Add problem id on the spreadsheet
-
 Ensure a feature button is always the last message in a channel
 
 Add announcement channel
 
-Add instructions on how to use the bot
-    Help message, when atting the bot, 
-    Description
+change commands to add {feature name}
 
 Add maze game
+Add versus mode
+Add coop mode
+Aadd display a project
+
+Use "@AiGoCode help"
+
+To get started, create a read only channel and say "@AiGoCode add_{feature name}"
+
+I support Python and Java.
