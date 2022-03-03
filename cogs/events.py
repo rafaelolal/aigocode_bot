@@ -2,7 +2,7 @@ from datetime import datetime
 from discord.ext import commands
 from discord import Embed, Colour, TextChannel
 
-from cogs.features.singleplayer import SingleplayerView
+from cogs.features.features.singleplayer import SingleplayerView
 from cogs.db.db_management import DB
 
 class Events(commands.Cog):

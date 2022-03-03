@@ -1,2 +1,2 @@
-from singleplayer import SingleplayerCommands
-from display import DisplayCommands
+from .singleplayer import SingleplayerCommands
+from .display import DisplayCommands
