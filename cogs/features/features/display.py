@@ -12,17 +12,11 @@ from discord.message import Message
 from discord.member import Member
 from discord.channel import TextChannel
 
-# from db.user_management import get_user_by_project, add_project_to_user, remove_project_from_user
+from ...db.db_management import DB
 
 class DisplayCommands(Feature):
     def __init__(self, bot):
-        super().__init__(bot, 'singleplayer', DisplayView)
-
-    async def add_display(self, ctx) -> None:
-        await super().add_feature(ctx)
-
-    async def remove_display(self, ctx) -> None:
-        await super().remove_feature(ctx)
+        super().__init__(bot, 'display', DisplayView)
     
 class DisplayView(discord.ui.View):
     def __init__(self):
@@ -38,7 +32,7 @@ class DisplayView(discord.ui.View):
             return
 
         project_msg = await interaction.channel.send(embed=embed, view=EditProject())
-        add_project_to_user(user.id, project_msg.id)
+        DB.add_project_to_user(user.id, project_msg.id)
 
         await interaction.delete_original_message()
         await interaction.channel.send(content="\u200b", view=self)
@@ -108,7 +102,7 @@ class EditProject(discord.ui.View):
         super().__init__(timeout=None)
 
     async def interaction_check(self, interaction) -> bool:
-        owner = get_user_by_project(interaction.message.id)
+        owner = DB.get_user_by_project(interaction.message.id)
         
         ID = 0
         if interaction.user.id != owner[ID] and interaction.user.id != interaction.guild.owner_id:
@@ -132,7 +126,7 @@ class EditProject(discord.ui.View):
 
     @discord.ui.button(label='Delete', style=discord.ButtonStyle.danger, custom_id=f'delete_button')
     async def delete(self, button, interaction):
-        remove_project_from_user(interaction.user.id, interaction.message.id)
+        DB.remove_project_from_user(interaction.user.id, interaction.message.id)
         await interaction.message.delete()
 
 class Prompt(discord.ui.View):
@@ -215,5 +209,5 @@ class LinkPrompt(Prompt):
         await user.send(f"You entered: <{response}>")
 
 def setup(bot):
-    bot.add_cog(ProjectDisplay(bot))
+    bot.add_cog(DisplayCommands(bot))
     

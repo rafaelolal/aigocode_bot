@@ -10,7 +10,7 @@ class Feature(commands.Cog):
         self.name = name
         self.view = view
 
-    async def add_feature(self, ctx):
+    async def add(self, ctx):
         channel_id, message_id = DB.get_channel(ctx.guild.id,
             self.name)
         
@@ -25,7 +25,7 @@ class Feature(commands.Cog):
             
             await ctx.send(embed=embed, delete_after=5)
 
-    async def remove_feature(self, ctx):
+    async def remove(self, ctx):
         channel_id, msg_id = DB.get_channel(ctx.guild.id, self.name)
         message = await Helpers.get_message(ctx, msg_id)
         if message:
