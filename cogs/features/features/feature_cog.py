@@ -15,7 +15,7 @@ class Feature(commands.Cog):
             (ctx.guild.id,))
         guild = DB.c.fetchone()
 
-        if guild[DB.channels.index(self.name)] != ', ':
+        if guild[DB.channels.index(self.name)] == ', ':
             msg = await ctx.send('\u200b', view=self.view())
             DB.update_guild(ctx.guild.id,
                 self.name, f"{ctx.channel.id}, {msg.id}")
@@ -28,8 +28,8 @@ class Feature(commands.Cog):
 
     async def remove(self, ctx):
         channel_id, msg_id = DB.get_channel(ctx.guild.id, self.name)
-        message = await Helpers.get_message(ctx, msg_id)
-        if message:
+        if msg_id:
+            message = await Helpers.get_message(ctx, msg_id)
             await message.delete()
             DB.update_guild(ctx.guild.id, self.name, ", ")
 
