@@ -6,6 +6,9 @@ from discord import Embed
 from discord import Colour
 
 class SolveView(discord.ui.View):
+    
+    langs = ['py', 'java']
+
     def __init__(self, problem_menu_view, problem_id):
         super().__init__(timeout=None)
         self.problem_menu_view = problem_menu_view
@@ -36,7 +39,7 @@ class SolveView(discord.ui.View):
                 embed = self.response_embed(embed, 200, response['trace'])
 
                 if embed.colour == Colour.green():
-                    self.disable(interaction)
+                    await self.disable(interaction)
 
             await interaction.message.edit(embed=embed)
 
