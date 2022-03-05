@@ -1,16 +1,10 @@
-ERROR
-seems like a new entry is being added to the DB whenever a guild joins
-
 Ensure a feature button is always the last message in a channel
 
 Add announcement channel
 
-change commands to add {feature name}
-
 Add maze game
 Add versus mode
 Add coop mode
-Aadd display a project
 
 Use "@AiGoCode help"
 
