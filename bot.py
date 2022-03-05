@@ -12,20 +12,15 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), owner_id=2507
                    intents=Intents.all(),
                    help_command=CustomHelpCommand())
 
-# path = Path(__file__).resolve().parent
-# if str(path) not in sys.path:
-#     sys.path.insert(1, str(path))
-
 if __name__ == "__main__":
     cogs = {
     'cogs': ['helpers', 'events'],
     'cogs.db': ['db_management', 'mongodb'],
     'cogs.features': ['feature_manager'],
-    'cogs.features.features': ['singleplayer'],}
+    'cogs.features.features': ['singleplayer', 'display'],}
 
     for dir in cogs:
         for cog in cogs[dir]:
-            print(f"{dir}.{cog}")
             bot.load_extension(f"{dir}.{cog}")
 
     load_dotenv()
