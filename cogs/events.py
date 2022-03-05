@@ -2,7 +2,7 @@ from datetime import datetime
 from discord.ext import commands
 from discord import Embed, Colour, TextChannel
 
-from cogs.features.features.singleplayer import SingleplayerView
+from cogs.features.features import SingleplayerView, DisplayView, EditProjectView
 from cogs.db.db_management import DB
 
 class Events(commands.Cog):
@@ -12,6 +12,8 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         self.bot.add_view(SingleplayerView())
+        self.bot.add_view(DisplayView())
+        self.bot.add_view(EditProjectView())
         print(f"Bot connected OK on {datetime.today()}")
 
     @commands.Cog.listener()
