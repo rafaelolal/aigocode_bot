@@ -1,2 +1,2 @@
-from .singleplayer import SingleplayerCommands
-from .display import DisplayCommands
+from .singleplayer import SingleplayerCommands, SingleplayerView
+from .display import DisplayCommands, DisplayView, EditProjectView
