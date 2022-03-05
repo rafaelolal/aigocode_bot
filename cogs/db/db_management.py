@@ -20,6 +20,8 @@ class DB(commands.Cog):
         'help', 'help_board',
         'display']
 
+    PROJECTS = 1
+
     def __init__(self, bot):
         self.bot = bot
   
@@ -104,40 +106,41 @@ class DB(commands.Cog):
             DB.c.execute("DELETE FROM members WHERE id=?",
                 (id,))
 
+    @staticmethod
     def get_user_by_project(message_id: int) -> List:
         with DB.conn:
-            DB.c.execute("SELECT * FROM users WHERE projects LIKE ?",
+            DB.c.execute("SELECT * FROM members WHERE projects LIKE ?",
             (f"%{message_id}%",))
         
         return DB.c.fetchone()
 
+    @staticmethod
     def add_project_to_user(user_id: int, message_id: int) ->  None:
         with DB.conn:
-            DB.c.execute("SELECT * FROM users where id=?", (user_id,))
+            DB.c.execute("SELECT * FROM members where id=?", (user_id,))
             user = DB.c.fetchone()
 
-            PROJECTS = 2
-            if user[PROJECTS]:
-                projects = user[PROJECTS] + f", {message_id}"
+            if user[DB.PROJECTS]:
+                projects = user[DB.PROJECTS] + f", {message_id}"
 
             else:
                 projects = f"{message_id}"
 
-            DB.c.execute("UPDATE users SET projects=? WHERE id=?", (projects, user_id,))
+            DB.c.execute("UPDATE members SET projects=? WHERE id=?", (projects, user_id,))
 
+    @staticmethod
     def remove_project_from_user(user_id: int, message_id: int) -> None:
         with DB.conn:
-            DB.c.execute("SELECT * FROM users WHERE id=?", (user_id,))
+            DB.c.execute("SELECT * FROM members WHERE id=?", (user_id,))
             user = DB.c.fetchone()
 
-            PROJECTS = 2
-            projects = user[PROJECTS].split(', ')
+            projects = user[DB.PROJECTS].split(', ')
             if str(message_id) not in projects:
                 raise ValueError(f"user with user_id {user_id} does not contain project with message_id {message_id}")
 
             projects.remove(str(message_id))
             
-            DB.c.execute("UPDATE users SET projects=? WHERE id=?", (', '.join(projects), user_id,))
+            DB.c.execute("UPDATE members SET projects=? WHERE id=?", (', '.join(projects), user_id,))
 
     #######################################################################
     
