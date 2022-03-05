@@ -31,7 +31,7 @@ class DisplayView(discord.ui.View):
         if not embed:
             return
 
-        project_msg = await interaction.channel.send(embed=embed, view=EditProject())
+        project_msg = await interaction.channel.send(embed=embed, view=EditProjectView())
         DB.add_project_to_user(user.id, project_msg.id)
 
         await interaction.delete_original_message()
@@ -40,22 +40,22 @@ class DisplayView(discord.ui.View):
         await user.send("Project created succesfuly!")
 
     @staticmethod
-    async def ask_to(user: Member) -> Union[Embed, None]:
+    async def ask_to(user: Member, embed: Embed = None) -> Union[Embed, None]:
         user = User(user)
 
-        title = await user.ask(TitlePrompt)
+        title = await user.ask(TitlePrompt, embed=embed)
         if not title:
             return
 
-        description = await user.ask(DescriptionPrompt)
+        description = await user.ask(DescriptionPrompt, embed=embed)
         if not description:
             return
 
-        image = await user.ask(ImagePrompt)
+        image = await user.ask(ImagePrompt, embed=embed)
         if not image:
             return
 
-        link = await user.ask(LinkPrompt)
+        link = await user.ask(LinkPrompt, embed=embed)
         if not link:
             return
 
@@ -78,14 +78,23 @@ class User:
     def __init__(self, user):
         self.user = user
 
-    async def ask(self, PromptType) -> str:
-        prompt = PromptType()
+    async def ask(self, PromptType, embed: Embed = None) -> str:
+        prompt = PromptType(editing=True if embed else False)
         request_msg = await prompt.send_request_msg_to(self.user)
         
         await prompt.wait()
-        if prompt.is_confirmed:
+        if prompt.is_confirmed is True:
             response_msg = await prompt.get_response(request_msg.channel)
             await prompt.acknowledge(self.user, response_msg)
+
+        elif prompt.is_confirmed is None:
+            if prompt.prompt_type == 'link':
+                return embed.url
+
+            elif prompt.prompt_type == 'image':
+                return embed.image.url
+
+            return eval(f'embed.{prompt.prompt_type}')
 
         else:
             await self.user.send("Goodbye!")
@@ -97,9 +106,10 @@ class User:
 
         return response_msg.content
 
-class EditProject(discord.ui.View):
+class EditProjectView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
+        self.editing_now = []
 
     async def interaction_check(self, interaction) -> bool:
         owner = DB.get_user_by_project(interaction.message.id)
@@ -109,20 +119,29 @@ class EditProject(discord.ui.View):
             await interaction.response.send_message("Only the owner can do this.", ephemeral=True)
             return False
 
+        elif interaction.user in self.editing_now:
+            await interaction.response.send_message("Finish editing before trying again.", ephemeral=True)
+            return False
+
         return True
 
     @discord.ui.button(label='Edit', style=discord.ButtonStyle.grey, custom_id='edit_button')
     async def edit(self, button, interaction):
         await interaction.response.defer()
-        
-        embed = await DisplayView.ask_to(interaction.user)
+
+        self.editing_now.append(interaction.user)
+
+        project_msg = interaction.message
+        embed = interaction.message.embeds[0]
+
+        embed = await DisplayView.ask_to(interaction.user, embed=embed)
         if not embed:
             return
         
-        project_msg = interaction.message
-
         await project_msg.edit(embed=embed)
         await interaction.user.send("Project editted succesfuly!")
+
+        self.editing_now.remove(interaction.user)
 
     @discord.ui.button(label='Delete', style=discord.ButtonStyle.danger, custom_id=f'delete_button')
     async def delete(self, button, interaction):
@@ -130,11 +149,14 @@ class EditProject(discord.ui.View):
         await interaction.message.delete()
 
 class Prompt(discord.ui.View):
-    def __init__(self, prompt_type: str):
+    def __init__(self, prompt_type: str, editing: bool):
         super().__init__(timeout=None)
-        self.is_confirmed = False
-        self.error_msg = f"Send a {prompt_type} before confirming."
+        self.is_confirmed = None
         self.prompt_type = prompt_type
+        self.error_msg = f"Send a {self.prompt_type} before confirming."
+
+        if editing:
+            self.add_item(KeepButton())
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
     async def confirm(self, button, interaction):
@@ -147,6 +169,7 @@ class Prompt(discord.ui.View):
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
     async def cancel(self, button, interaction):
+        self.is_confirmed = False
         self.stop()
     
     @staticmethod
@@ -172,17 +195,24 @@ class Prompt(discord.ui.View):
         return await user.send(f"Respond with the {self.prompt_type} of your project. If you make a mistake, edit or send a new message then confirm.",
             view=self)
 
-class TitlePrompt(Prompt):
+class KeepButton(discord.ui.Button):
     def __init__(self):
-        super().__init__("title")
+        super().__init__(style=discord.ButtonStyle.blurple, label='Keep')
+
+    async def callback(self, interaction):
+        self.view.stop()
+
+class TitlePrompt(Prompt):
+    def __init__(self, editing):
+        super().__init__("title", editing)
 
 class DescriptionPrompt(Prompt):
-    def __init__(self):
-        super().__init__("description")
+    def __init__(self, editing):
+        super().__init__("description", editing)
 
 class ImagePrompt(Prompt):
-    def __init__(self):
-        super().__init__("image")
+    def __init__(self, editing):
+        super().__init__("image", editing)
 
         self.error_msg = "Attach and send an image before confirming."
 
@@ -195,8 +225,8 @@ class ImagePrompt(Prompt):
         await user.send(f"The image you attached is: \n> <{image_url}>")
 
 class LinkPrompt(Prompt):
-    def __init__(self):
-        super().__init__("link")
+    def __init__(self, editing):
+        super().__init__("link", editing)
 
         self.error_msg = 'Enter a valid "http" link before confirming.'
 
