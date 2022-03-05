@@ -1,6 +1,5 @@
 import validators
 
-from discord.ext import commands
 from discord import Colour, Embed
 import discord
 
@@ -37,7 +36,7 @@ class DisplayView(discord.ui.View):
         self.creating_now.append(interaction.user)
 
         user = interaction.user
-        embed = await self.ask_to(user)
+        embed = await DisplayView.create_embed(user)
         self.creating_now.remove(interaction.user)
         if not embed:
             return
@@ -50,77 +49,58 @@ class DisplayView(discord.ui.View):
 
         await user.send("Project created succesfuly!")
 
-    @staticmethod
-    async def ask_to(user: Member, embed: Embed = None) -> Union[Embed, None]:
-        user = User(user)
+    async def create_embed(user: Member, embed: Embed = None) -> Embed:
+        values = await DisplayView.ask_to(user, embed)
+        if values:
+            embed = Embed(title=values[0],
+                description=values[1],
+                url=values[2])
 
-        title = await user.ask(TitlePrompt, embed=embed)
-        if not title:
-            return
+            embed.set_author(name=user.nick, icon_url=user.display_avatar.url)
+            embed.set_footer(text="Do not forget to click on the project title to visit it!")
+            embed.set_image(url=values[3])
 
-        description = await user.ask(DescriptionPrompt, embed=embed)
-        if not description:
-            return
-
-        image = await user.ask(ImagePrompt, embed=embed)
-        if not image:
-            return
-
-        link = await user.ask(LinkPrompt, embed=embed)
-        if not link:
-            return
-
-        embed = DisplayView.create_embed(user.user, title, description, image, link)
-        return embed
+            return embed
 
     @staticmethod
-    def create_embed(user: Member, title: str, description: str, image: str, link: str) -> Embed:
-        embed = Embed(title=title,
-            description=description,
-            url=link)
+    async def ask_to(user: Member, embed: Embed = None) -> list[str]:
+        values = []
+        for possible_prompt in [TitlePrompt, DescriptionPrompt, LinkPrompt, ImagePrompt]:
+            prompt = possible_prompt(editing=True if embed else False)
+            request_msg = await prompt.send_request_msg_to(user)
+            value = None
 
-        embed.set_author(name=user.nick, icon_url=user.display_avatar.url)
-        embed.set_footer(text="Do not forget to click on the project title to visit it!")
-        embed.set_image(url=image)
+            await prompt.wait()
+            if prompt.is_confirmed is True:
+                response_msg = await prompt.get_response(request_msg.channel)
+                await prompt.acknowledge(user, response_msg, request_msg)
+                value = response_msg.content
 
-        return embed
+            elif prompt.is_confirmed is None:
+                if prompt.prompt_type == 'link':
+                    value = embed.url
 
-class User:
-    def __init__(self, user):
-        self.user = user
+                elif prompt.prompt_type == 'image':
+                    value = embed.image.url
 
-    async def ask(self, PromptType, embed: Embed = None) -> str:
-        prompt = PromptType(editing=True if embed else False)
-        request_msg = await prompt.send_request_msg_to(self.user)
-        
-        await prompt.wait()
-        if prompt.is_confirmed is True:
-            response_msg = await prompt.get_response(request_msg.channel)
-            await prompt.acknowledge(self.user, response_msg, request_msg)
+                value = eval(f'embed.{prompt.prompt_type}')
 
-        elif prompt.is_confirmed is None:
-            if prompt.prompt_type == 'link':
-                return embed.url
+            if isinstance(prompt, ImagePrompt):
+                value = response_msg.attachments[-1].url
 
-            elif prompt.prompt_type == 'image':
-                return embed.image.url
+            if not value:
+                return
+            
+            values.append(value)
 
-            return eval(f'embed.{prompt.prompt_type}')
-
-        else:
-            return
-
-        if isinstance(prompt, ImagePrompt):
-            return response_msg.attachments[-1].url
-
-        return response_msg.content
+        return values
 
 class EditProjectView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.editing_now = []
 
-    async def interaction_check(self, interaction) -> bool:
+    async def interaction_check(self, interaction):
         owner = DB.get_user_by_project(interaction.message.id)
         
         ID = 0
@@ -143,7 +123,7 @@ class EditProjectView(discord.ui.View):
         project_msg = interaction.message
         embed = interaction.message.embeds[0]
 
-        embed = await DisplayView.ask_to(interaction.user, embed=embed)
+        embed = await DisplayView.create_embed(interaction.user, embed=embed)
         if not embed:
             return
         
@@ -212,7 +192,7 @@ class Prompt(discord.ui.View):
                 value=response.content)
         
         else:
-            embed.url = request.content if self.prompt_type == 'link' else response.attachments[-1].url
+            embed.url = response.content if self.prompt_type == 'link' else response.attachments[-1].url
             embed.add_field(name="You Entered",
                 value="Click on the title to preview your response")
         
@@ -280,4 +260,3 @@ class LinkPrompt(Prompt):
 
 def setup(bot):
     bot.add_cog(DisplayCommands(bot))
-    
