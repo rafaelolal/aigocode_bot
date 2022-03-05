@@ -22,7 +22,7 @@ class DisplayView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Display a Project", style=discord.ButtonStyle.green, custom_id='project_display')
+    @discord.ui.button(label="Display a Project", style=discord.ButtonStyle.blurple, custom_id='project_display')
     async def display(self, button, interaction):
         await interaction.response.defer()
 
