@@ -11,17 +11,18 @@ class Feature(commands.Cog):
         self.view = view
 
     async def add(self, ctx):
-        channel_id, message_id = DB.get_channel(ctx.guild.id,
-            self.name)
-        
-        if not channel_id:
+        DB.c.execute("SELECT * FROM guilds WHERE id=?",
+            (ctx.guild.id,))
+        guild = DB.c.fetchone()
+
+        if guild[DB.channels.index(self.name)] != ', ':
             msg = await ctx.send('\u200b', view=self.view())
             DB.update_guild(ctx.guild.id,
                 self.name, f"{ctx.channel.id}, {msg.id}")
 
         else:
             embed = Helpers.warning_embed("Invalid Action",
-                "This channel already has this feature.")
+                "This server already has this feature.")
             
             await ctx.send(embed=embed, delete_after=5)
 
