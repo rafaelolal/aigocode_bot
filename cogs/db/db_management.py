@@ -1,18 +1,17 @@
 import sqlite3
-import os
+import pathlib
 from typing import List, Tuple, Union
 
 from discord.ext import commands
 
 class DB(commands.Cog):
     
-    path = os.path.dirname(os.path.realpath(__file__))
-    conn = sqlite3.connect(path + '/' + 'aigocode.db')
+    path = pathlib.Path(__file__).parent.resolve()
+    conn = sqlite3.connect(path / 'aigocode.db')
     # conn = sqlite3.connect(":memory:")
 
     c = conn.cursor()
 
-    channel_index_offset = 1
     channels = ['stats',
         'singleplayer', 'singleplayer_board',
         'versus', 'versus_board',
@@ -25,11 +24,11 @@ class DB(commands.Cog):
         self.bot = bot
   
     @commands.command()
+    @commands.is_owner()
     async def create_guilds_table(self, ctx) -> None:
         with DB.conn:
             DB.c.execute(f"""CREATE TABLE guilds
                 (id integer,
-                 display text,
                  stats text,
                  singleplayer text,
                  singleplayer_board text,
@@ -41,9 +40,11 @@ class DB(commands.Cog):
                  tictactoe_board text,
                  help text,
                  help_baord text,
+                 display text,
                  warnings integer)""")
 
     @commands.command()
+    @commands.is_owner()
     async def create_members_table(self, ctx) -> None:
         with DB.conn:
             DB.c.execute(f"""CREATE TABLE members
@@ -82,8 +83,7 @@ class DB(commands.Cog):
                 (guild_id,))
  
             guild = DB.c.fetchone()
-            channel_id, msg_id = guild[DB.channels.index(channel_name) \
-                + DB.channel_index_offset].split(', ')
+            channel_id, msg_id = guild[DB.channels.index(channel_name)].split(', ')
             
             if channel_id and msg_id:
                 return int(channel_id), int(msg_id)
@@ -141,13 +141,23 @@ class DB(commands.Cog):
 
     #######################################################################
     
-    @staticmethod
-    def fetch_all_members() -> List[List[int]]:
+    @commands.command()
+    async def fetch_all_members(self, ctx) -> List[List[int]]:
         with DB.conn:
             DB.c.execute("SELECT * FROM members")
             members = DB.c.fetchall()
 
+            # print('\n'.join(map(str, members)))
             return members
+
+    @commands.command()
+    async def fetch_all_guilds(self, ctx) -> List[List[int]]:
+        with DB.conn:
+            DB.c.execute("SELECT * FROM guilds")
+            guilds = DB.c.fetchall()
+
+            # print('\n'.join(map(str, guilds)))
+            return guilds
 
     @staticmethod
     def fetch_one(id: int) -> Union[List[Union[str, int]], None]:
