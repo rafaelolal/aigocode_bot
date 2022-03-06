@@ -6,11 +6,11 @@ from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from help import CustomHelpCommand
+from help_command import HelpCommand
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('|'), owner_id=250782339758555136,
                    intents=Intents.all(),
-                   help_command=CustomHelpCommand())
+                   help_command=HelpCommand())
 
 if __name__ == "__main__":
     cogs = {

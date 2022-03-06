@@ -1,4 +1,3 @@
-from logging import warning
 from typing import Union
 
 from discord.ext import commands

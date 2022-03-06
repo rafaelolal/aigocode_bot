@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from .feature_cog import Feature
-from views.problem_menu_view import ProblemMenuView
+from for_solving.menu_view import MenuView
 
 class SingleplayerCommands(Feature):
     def __init__(self, bot):
@@ -23,7 +23,7 @@ class SingleplayerView(discord.ui.View):
     @discord.ui.button(label='Play Singleplayer', style=discord.ButtonStyle.blurple, custom_id='play_singleplayer')
     async def play_singleplayer(self, button, interaction):
         self.playing_now.append(interaction.user)
-        view = ProblemMenuView()
+        view = MenuView()
         await interaction.response.send_message(embed=view.response_embed(307),
             view=view,
             ephemeral=True)
