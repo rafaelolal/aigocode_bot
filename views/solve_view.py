@@ -20,26 +20,25 @@ class SolveView(discord.ui.View):
         msg = msgs[0]
 
         if interaction.message.author != msg.author and msg.attachments:
-            file = msg.attachments[-1]
             embed = interaction.message.embeds[0]
-            try:
-                (await file.read()).decode('utf-8', 'strict')
 
-            except UnicodeDecodeError:
-                embed = self.response_embed(embed, 500)
-
-            else:
+            file = msg.attachments[-1]
+            file_info = await SolveView.read(file)
+            if file_info:
                 await interaction.response.defer()
                 embed = self.response_embed(embed, 102)
                 await interaction.message.edit(embed=embed)
                 
-                response = await self.run_file(file, str(interaction.user.id), self.problem_id)
+                response = self.run_file(file_info, interaction.user.id, self.problem_id)
                 print(response)
 
                 embed = self.response_embed(embed, 200, response['trace'])
 
                 if embed.colour == Colour.green():
                     await self.disable(interaction)
+
+            else:
+                embed = self.response_embed(embed, 500)
 
             await interaction.message.edit(embed=embed)
 
@@ -53,6 +52,17 @@ class SolveView(discord.ui.View):
         self.stop()
 
     @staticmethod
+    async def read(file):
+        lang = file.filename.split('.')[-1]
+        if lang:
+            try:
+                content = (await file.read()).decode('utf-8', 'strict').replace('\r', '').replace('        ', '\t')
+                return (lang, content)
+
+            except UnicodeDecodeError:
+                pass
+
+    @staticmethod
     def response_embed(embed: Embed, status: int, trace: list[bool] = None) -> Embed:
         if status == 500:
             embed.description = 'There was an error reading your file. Try again'
@@ -63,13 +73,13 @@ class SolveView(discord.ui.View):
             embed.colour = Colour.yellow()
 
         elif status == 200:
-            desc = ''
-            for test_case in enumerate(trace):
+            desc = '✅: correct\n🛑: wrong answer\n ⚠️: error\n\n'
+            for test_case in trace:
                 case_results = []
-                for case in test_case[1]['responses']:
+                for case in test_case['responses']:
                     if 'Traceback' in case['got']:
                         case_results.append('⚠️')
-                        if test_case[1]['test case'] == 0 and case['case'] == 0:
+                        if test_case['test case'] == 0 and case['case'] == 0:
                             desc = case['got']
                     
                     elif case['correct']:
@@ -78,12 +88,12 @@ class SolveView(discord.ui.View):
                     elif not case['correct']:
                         case_results.insert(case['case'], '🛑')
 
-                if not desc:
+                if 'Traceback' not in desc:
                     desc += ' '.join(case_results) + "\n"
 
             embed.description = desc
 
-            if '⚠️' in desc or '🛑' in desc or 'Traceback' in desc:
+            if '⚠️' in desc[39:] or '🛑' in desc[39:] or 'Traceback' in desc:
                 embed.colour = Colour.red()
 
             else:
@@ -92,17 +102,15 @@ class SolveView(discord.ui.View):
         return embed
 
     @staticmethod
-    async def run_file(file: discord.Attachment, user_id: str, problem_id: str) -> Dict[str, Any]:
-        content = (await file.read()).decode('utf-8', 'strict').replace('\r', '').replace('        ', '\t')
-        lang = file.filename.split('.')[-1]
+    def run_file(file_info: tuple[str], user_id: int, problem_id: int) -> Dict[str, Any]:
         json = {
-            # TODO replace this with a env variable
-            "key": '7e8e71c8-0308-4dcc-b09e-2b00dbec60c9',
-            "icode": content,
-            "idiscordid": user_id,
+            "key": '7e8e71c8-0308-4dcc-b09e-2b00dbec60c9', # TODO replace this with a env variable
+            "icode": file_info[1],
+            "idiscordid": str(user_id),
             "problemid": str(problem_id),
         }
 
+        lang = file_info[0]
         if lang == 'py':
             json['ilanguage'] = 'python3'
             json['iversion'] = '3.9.4'
