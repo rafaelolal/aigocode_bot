@@ -11,18 +11,18 @@ class CustomHelpCommand(commands.HelpCommand):
             description='Click on the title to visit aigocode.org',
             colour=Colour.blue())
 
-        embed.set_footer(text='Commands are all lowercase and include underscores. This bot does not respond to DMs')
+        embed.set_footer(text='Commands are all lowercase. This bot does not respond to DMs')
 
         embed.add_field(name="Getting Started",
-            value='If you are a server admin, create a readonly channel and say "@AiGoCode Bot add_{feature name}"',
+            value='If you are a server admin, preferably create a readonly channel and say "@AiGoCode add {feature name}". If you are a server member, ask an admin which channel has the feature you are looking for',
             inline=False)
 
         embed.add_field(name="Features",
-            value=" * singleplayer",
+            value=" * singleplayer\n * display (recommended to have its own channel)",
             inline=False)
 
         embed.add_field(name='Command Usage Example',
-            value='@AiGoCode Bot add_singleplayer\n@AiGoCode Bot remove_singleplayer',
+            value='@AiGoCode add singleplayer\n@AiGoCode remove singleplayer',
             inline=False)
 
         embed.add_field(name="Supported Languages",
