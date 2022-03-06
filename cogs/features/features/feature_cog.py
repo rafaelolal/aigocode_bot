@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 from cogs.helpers import Helpers
@@ -29,9 +28,9 @@ class Feature(commands.Cog):
     async def remove(self, ctx):
         channel_id, msg_id = DB.get_channel(ctx.guild.id, self.name)
         if msg_id:
+            DB.update_guild(ctx.guild.id, self.name, ", ")
             message = await Helpers.get_message(ctx, msg_id)
             await message.delete()
-            DB.update_guild(ctx.guild.id, self.name, ", ")
 
         else:
             embed = Helpers.warning_embed("Invalid Action",
