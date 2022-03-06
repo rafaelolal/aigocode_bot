@@ -1,38 +1,20 @@
-from typing import List
-
 import discord
 from discord import Embed
 
-from items.problem_menu_select import ProblemMenuSelect
-from items.login_button import LoginButton
+from for_solving.menu_view_items import MenuSelect
+from for_solving.menu_view_items import LoginButton
 from cogs.db.mongodb import Mongo
-from .solve_view import SolveView
+from .problem_view import ProblemView
 
-class ProblemMenuView(discord.ui.View):
+class MenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.add_item(ProblemMenuSelect())
+        self.add_item(MenuSelect())
         self.problem_selected = None
 
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
-
-    @discord.ui.button(label='Up', style=discord.ButtonStyle.blurple, row=1)
-    async def up(self, button, interaction):
-        select = self.get_select()
-        scrolled = select.scroll('up')
-        await interaction.response.edit_message(embed=self.response_embed(307,
-            remove_problem=scrolled),
-            view=self)
-
-    @discord.ui.button(label='Down', style=discord.ButtonStyle.blurple, row=2)
-    async def down(self, button, interaction):
-        select = self.get_select()
-        scrolled = select.scroll('down')
-        await interaction.response.edit_message(embed=self.response_embed(307,
-            remove_problem=scrolled),
-            view=self)
 
     @discord.ui.button(label='Begin!', style=discord.ButtonStyle.green, row=2)
     async def begin(self, button, interaction):
@@ -49,7 +31,7 @@ class ProblemMenuView(discord.ui.View):
                     view=self)
 
             else:
-                view = SolveView(self, self.problem_selected['_id'])
+                view = ProblemView(self, self.problem_selected['_id'])
                 await interaction.user.send(embed=self.response_embed(201),
                     view=view)
                 
@@ -170,5 +152,5 @@ class ProblemMenuView(discord.ui.View):
         return page_range
 
     @staticmethod
-    def f_tags(tags: List[str]) -> str:
+    def f_tags(tags: list[str]) -> str:
         return ', '.join(tags)

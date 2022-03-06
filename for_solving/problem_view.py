@@ -5,7 +5,7 @@ import discord
 from discord import Embed
 from discord import Colour
 
-class SolveView(discord.ui.View):
+class ProblemView(discord.ui.View):
     
     langs = ['py', 'java']
 
@@ -23,7 +23,7 @@ class SolveView(discord.ui.View):
             embed = interaction.message.embeds[0]
 
             file = msg.attachments[-1]
-            file_info = await SolveView.read(file)
+            file_info = await ProblemView.read(file)
             if file_info:
                 await interaction.response.defer()
                 embed = self.response_embed(embed, 102)
