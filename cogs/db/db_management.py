@@ -30,8 +30,7 @@ class DB(commands.Cog):
     async def create_guilds_table(self, ctx) -> None:
         with DB.conn:
             DB.c.execute(f"""CREATE TABLE guilds
-                (id integer,
-                 stats text,
+                (stats text,
                  singleplayer text,
                  singleplayer_board text,
                  versus text,
@@ -43,7 +42,8 @@ class DB(commands.Cog):
                  help text,
                  help_baord text,
                  display text,
-                 warnings integer)""")
+                 warnings integer,
+                 id integer)""")
 
     @commands.command()
     @commands.is_owner()
@@ -64,7 +64,7 @@ class DB(commands.Cog):
     def add_guild(id: int) -> None:
         with DB.conn:
             DB.c.execute("INSERT INTO guilds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (id, ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0,))
+                (", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0, id,))
 
     @staticmethod
     def remove_guild(id: int) -> None:
@@ -97,8 +97,8 @@ class DB(commands.Cog):
     @staticmethod
     def add_member(id: int) -> None:
         with DB.conn:
-            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?)",
-                (id, 0, 0, 0, 0, 0))
+            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (id, ' ', 0, 0, 0, 0, 0))
 
     @staticmethod
     def remove_member(id: int) -> None:
@@ -145,6 +145,7 @@ class DB(commands.Cog):
     #######################################################################
     
     @commands.command()
+    @commands.is_owner()
     async def fetch_all_members(self, ctx) -> List[List[int]]:
         with DB.conn:
             DB.c.execute("SELECT * FROM members")
@@ -154,6 +155,7 @@ class DB(commands.Cog):
             return members
 
     @commands.command()
+    @commands.is_owner()
     async def fetch_all_guilds(self, ctx) -> List[List[int]]:
         with DB.conn:
             DB.c.execute("SELECT * FROM guilds")
