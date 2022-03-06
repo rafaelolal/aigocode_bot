@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord import Embed, Colour
 
-class CustomHelpCommand(commands.HelpCommand):
+class HelpCommand(commands.HelpCommand):
     def __init__(self):
         super().__init__()
 
