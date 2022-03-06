@@ -17,7 +17,7 @@ class FeatureManager(commands.Cog):
         await self.cogs[f'{feature.capitalize()}Commands'].add(ctx)
 
     @commands.command()
-    @commands.is_owner()
+    @commands.has_permissions(administrator=True)
     async def remove(self, ctx, feature):
         await self.cogs[f'{feature.capitalize()}Commands'].remove(ctx)
 
