@@ -40,7 +40,7 @@ class Events(commands.Cog):
             colour=Colour.blue())
 
         embed.add_field(name="Getting Started",
-            value='Hello, I am the AiGoCode Bot\n\nIf you are an admin, use "@AiGoCode Bot help"')
+            value='Hello, I am the AiGoCode Bot\n\nIf you are an admin, use "@AiGoCode help"')
 
         channels = await guild.fetch_channels()
         for channel in channels:
