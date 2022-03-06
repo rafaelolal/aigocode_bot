@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from help import CustomHelpCommand
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), owner_id=250782339758555136,
+bot = commands.Bot(command_prefix=commands.when_mentioned_or('|'), owner_id=250782339758555136,
                    intents=Intents.all(),
                    help_command=CustomHelpCommand())
 
