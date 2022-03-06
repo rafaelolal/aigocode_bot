@@ -1,4 +1,8 @@
-Ensure a feature button is always the last message in a channel
+aigocode.org page for the bot
+
+remove scroll buttons if not needed3
+
+remove the feature if the message is deleted
 
 Add announcement channel
 
@@ -6,8 +10,8 @@ Add maze game
 Add versus mode
 Add coop mode
 
-Use "@AiGoCode help"
+To get started, use "@AiGoCode help"
 
-To get started, create a read only channel and say "@AiGoCode add_{feature name}"
+Please visit aigocode.org
 
 I support Python and Java.
