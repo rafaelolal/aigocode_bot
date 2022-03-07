@@ -1,8 +1,7 @@
 import discord
 from discord import Embed
 
-from for_solving.menu_view_items import MenuSelect
-from for_solving.menu_view_items import LoginButton
+from .menu_items import MenuSelect, LoginButton
 from cogs.db.mongodb import Mongo
 from .problem_view import ProblemView
 
