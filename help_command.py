@@ -18,7 +18,10 @@ class HelpCommand(commands.HelpCommand):
             inline=False)
 
         embed.add_field(name="Features",
-            value=" * singleplayer\n * display (recommended to have its own channel)",
+            value=""" * singleplayer
+ * display (must have its own channel)
+ * tictactoe
+ * maze""",
             inline=False)
 
         embed.add_field(name='Command Usage Example',
