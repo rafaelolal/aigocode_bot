@@ -17,9 +17,15 @@ class Events(commands.Cog):
         print(f"Bot connected OK on {datetime.today()}")
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.name == self.bot.user.name:
-            return
+    async def on_raw_message_delete(self, payload):
+        guild = DB.fetch_one(payload.guild_id)
+        if guild:
+            for i, msg_info in enumerate(guild[:len(DB.channels)]):
+                if str(payload.message_id) in msg_info:
+                    DB.update_guild(payload.guild_id,
+                        DB.channels[i], ', ')
+
+                    break
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
