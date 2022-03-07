@@ -17,7 +17,7 @@ if __name__ == "__main__":
     'cogs': ['helpers', 'events'],
     'cogs.db': ['db_management', 'mongodb'],
     'cogs.features': ['feature_manager'],
-    'cogs.features.features': ['singleplayer', 'display'],}
+    'cogs.features.features': ['singleplayer', 'display', 'tictactoe'],}
 
     for dir in cogs:
         for cog in cogs[dir]:

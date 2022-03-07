@@ -69,6 +69,7 @@ class PickFriendView(discord.ui.View):
         await view.wait()
 
         self.playing_now.remove(interaction.user)
+
 class FriendSelect(discord.ui.Select):
     def __init__(self, members):
         self.members = members

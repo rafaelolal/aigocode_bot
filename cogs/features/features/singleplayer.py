@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from .feature_cog import Feature
-from for_solving.menu_view import MenuView
+from ..for_solving.menu_view import MenuView
 
 class SingleplayerCommands(Feature):
     def __init__(self, bot):

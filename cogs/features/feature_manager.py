@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from ..helpers import Helpers
 from ..db.db_management import DB
-from .features import SingleplayerCommands, DisplayCommands
+from .features import SingleplayerCommands, DisplayCommands, TictactoeCommands
 
 class FeatureManager(commands.Cog):
     def __init__(self, bot):
