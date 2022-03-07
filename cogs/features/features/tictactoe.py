@@ -140,7 +140,11 @@ class TictactoeButton(discord.ui.Button):
 
         old_content = interaction.message.content.split("\n")
         new_content = f"{old_content[0]}\n{content}"
-        await interaction.message.edit(content=new_content, view=view, delete_after=10)
+        if winner is not None:
+            await interaction.message.edit(content=new_content, view=view, delete_after=10)
+
+        else:
+            await interaction.message.edit(content=new_content, view=view)
 
 def setup(bot):
     bot.add_cog(TictactoeCommands(bot))
