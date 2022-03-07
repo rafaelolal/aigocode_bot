@@ -81,10 +81,7 @@ class DB(commands.Cog):
     @staticmethod
     def get_channel(guild_id: int, channel_name: str) -> Tuple[int]:
         with DB.conn:
-            DB.c.execute("""SELECT * FROM guilds WHERE id=?""",
-                (guild_id,))
- 
-            guild = DB.c.fetchone()
+            guild = DB.fetch_one(guild_id)
             channel_id, msg_id = guild[DB.channels.index(channel_name)].split(', ')
             
             if channel_id and msg_id:
@@ -117,8 +114,7 @@ class DB(commands.Cog):
     @staticmethod
     def add_project_to_user(user_id: int, message_id: int) ->  None:
         with DB.conn:
-            DB.c.execute("SELECT * FROM members where id=?", (user_id,))
-            user = DB.c.fetchone()
+            user = DB.fetch_one(user_id)
 
             if user[DB.PROJECTS]:
                 projects = user[DB.PROJECTS] + f", {message_id}"
@@ -165,7 +161,7 @@ class DB(commands.Cog):
             return guilds
 
     @staticmethod
-    def fetch_one(id: int) -> Union[List[Union[str, int]], None]:
+    def fetch_one(id: int) -> Union[list[Union[str, int]], None]:
         with DB.conn:
             DB.c.execute("SELECT * FROM members WHERE id=?",
                 (id,))
