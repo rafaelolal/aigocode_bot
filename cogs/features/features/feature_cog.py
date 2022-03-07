@@ -28,7 +28,8 @@ class Feature(commands.Cog):
         if msg_id:
             DB.update_guild(ctx.guild.id, self.name, ", ")
             message = await Helpers.get_message(ctx, msg_id)
-            await message.delete()
+            if message:
+                await message.delete()
 
         else:
             embed = Helpers.warning_embed("Invalid Action",

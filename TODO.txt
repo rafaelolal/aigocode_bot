@@ -1,14 +1,11 @@
 aigocode.org page for the bot
 
-remove scroll buttons if not needed3
-
-remove the feature if the message is deleted
-
 Add announcement channel
 
-Add maze game
 Add versus mode
 Add coop mode
+
+#####################################################################
 
 To get started, use "@AiGoCode help"
 

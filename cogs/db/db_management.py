@@ -17,6 +17,7 @@ class DB(commands.Cog):
         'versus', 'versus_board',
         'coop', 'coop_board',
         'tictactoe', 'tictactoe_board',
+        'maze', 'maze_board',
         'help', 'help_board',
         'display']
 
@@ -39,6 +40,8 @@ class DB(commands.Cog):
                  coop_board text,
                  tictactoe text,
                  tictactoe_board text,
+                 maze text,
+                 maze_board text
                  help text,
                  help_baord text,
                  display text,
@@ -56,6 +59,7 @@ class DB(commands.Cog):
                  versus_wins integer,
                  coop_wins integer,
                  tictactoe_wins integer,
+                 maze_wins integer,
                  helped integer)""")
 
     #######################################################################
@@ -63,8 +67,8 @@ class DB(commands.Cog):
     @staticmethod
     def add_guild(id: int) -> None:
         with DB.conn:
-            DB.c.execute("INSERT INTO guilds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0, id,))
+            DB.c.execute("INSERT INTO guilds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", ", 0, id,))
 
     @staticmethod
     def remove_guild(id: int) -> None:
@@ -94,8 +98,8 @@ class DB(commands.Cog):
     @staticmethod
     def add_member(id: int) -> None:
         with DB.conn:
-            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (id, ' ', 0, 0, 0, 0, 0))
+            DB.c.execute("INSERT INTO members VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (id, ' ', 0, 0, 0, 0, 0, 0))
 
     @staticmethod
     def remove_member(id: int) -> None:
