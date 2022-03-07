@@ -10,9 +10,7 @@ class Feature(commands.Cog):
         self.view = view
 
     async def add(self, ctx):
-        DB.c.execute("SELECT * FROM guilds WHERE id=?",
-            (ctx.guild.id,))
-        guild = DB.c.fetchone()
+        guild = DB.fetch_one(ctx.guild.id)
 
         if guild[DB.channels.index(self.name)] == ', ':
             msg = await ctx.send('\u200b', view=self.view())
