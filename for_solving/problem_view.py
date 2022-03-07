@@ -32,18 +32,18 @@ class ProblemView(discord.ui.View):
                 response = self.run_file(file_info, interaction.user.id, self.problem_id)
                 print(response)
 
-                embed = self.response_embed(embed, 200, response['trace'])
+                embed = self.response_embed(embed, 200, response)
 
                 if embed.colour == Colour.green():
-                    await self.disable(interaction)
+                    await self.disable_submission(interaction)
 
             else:
                 embed = self.response_embed(embed, 500)
 
             await interaction.message.edit(embed=embed)
 
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red)
-    async def cancel(self, button, interaction):
+    @discord.ui.button(label='Close', style=discord.ButtonStyle.red)
+    async def close(self, button, interaction):
         embed = Embed(title="Bye bye!",
             colour=discord.Colour.red())
         embed.set_footer(text="closing in 5 seconds")
@@ -63,7 +63,7 @@ class ProblemView(discord.ui.View):
                 pass
 
     @staticmethod
-    def response_embed(embed: Embed, status: int, trace: list[bool] = None) -> Embed:
+    def response_embed(embed: Embed, status: int, response: dict[Any] = None) -> Embed:
         if status == 500:
             embed.description = 'There was an error reading your file. Try again'
             embed.colour = Colour.red()
@@ -74,7 +74,7 @@ class ProblemView(discord.ui.View):
 
         elif status == 200:
             desc = '✅: correct\n🛑: wrong answer\n ⚠️: error\n\n'
-            for test_case in trace:
+            for test_case in response['trace']:
                 case_results = []
                 for case in test_case['responses']:
                     if 'Traceback' in case['got']:
@@ -91,6 +91,7 @@ class ProblemView(discord.ui.View):
                 if 'Traceback' not in desc:
                     desc += ' '.join(case_results) + "\n"
 
+            desc += f"\nPoints earned: {response['points']}"
             embed.description = desc
 
             if '⚠️' in desc[39:] or '🛑' in desc[39:] or 'Traceback' in desc:
@@ -124,9 +125,10 @@ class ProblemView(discord.ui.View):
         response = requests.post("https://codingcomp.netlify.app/api/bot/solve", json=json)
         return response.json()
 
-    async def disable(self, interaction) -> None:
+    async def disable_submission(self, interaction) -> None:
         for child in self.children:
-            child.disabled = True
+            if isinstance(child, discord.ui.Button):
+                if child.label == 'Submit':
+                    child.disabled = True
 
-        self.stop()
         await interaction.message.edit(view=self)
