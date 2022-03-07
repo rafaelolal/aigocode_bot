@@ -6,10 +6,6 @@ from cogs.db.mongodb import Mongo
 
 class MenuSelect(discord.ui.Select):
     def __init__(self):
-        super().__init__(placeholder='Pick a problem',
-            min_values=1, max_values=1,
-            options=options, row=0)
-
         self.problems = [problem for problem in Mongo.db['Problems'].find()]
         self.page = 1
         options = [discord.SelectOption(label=problem['title'],
@@ -18,6 +14,10 @@ class MenuSelect(discord.ui.Select):
         if len(self.problems) > 25:
             self.view.add_item(ScrollButton('up'))
             self.view.add_item(ScrollButton('down'))
+
+        super().__init__(placeholder='Pick a problem',
+            min_values=1, max_values=1,
+            options=options, row=0)
 
     async def callback(self, interaction):
         self.view.problem_selected = self.get_problem()

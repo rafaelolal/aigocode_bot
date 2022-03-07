@@ -69,7 +69,7 @@ class MenuView(discord.ui.View):
                     value=self.f_tags(problem['tags']))
 
                 if len(problem['description']) > 1024:
-                    desc = "Sorry, the description of this problem is too long to be dislpayed in Discord. Click on the title to visit this project at aigocode.org."
+                    desc = "Sorry, the description of this problem is too long to be dislpayed in Discord. Click on the title to visit this problem at aigocode.org."
 
                 else:
                     desc = problem['description']
@@ -100,6 +100,8 @@ class MenuView(discord.ui.View):
                 description="Attach a file and press submit. Your results for each test case will appear here.",
                 colour=discord.Colour.light_grey())
 
+            embed.set_footer(text='Remember to close before starting another problem')
+
             embed.add_field(name='Difficulty',
                 value=problem['difficulty'])
             
@@ -108,7 +110,7 @@ class MenuView(discord.ui.View):
             
             # TODO repeated code from status 307
             if len(problem['description']) > 1024:
-                desc = "Sorry, the description of this problem is too long to be dislpayed in Discord. Click on the title to visit this project at aigocode.org."
+                desc = "Sorry, the description of this problem is too long to be dislpayed in Discord. Click on the title to visit this problem at aigocode.org."
 
             else:
                 desc = problem['description']
