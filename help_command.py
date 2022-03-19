@@ -29,7 +29,7 @@ class HelpCommand(commands.HelpCommand):
             inline=False)
 
         embed.add_field(name="Supported Languages",
-            value="1. Python 3.*\n2. Java 15.*",
+            value="1. Python 3.*\n2. Java 15.*\n3. CPP 10.2.0",
             inline=False)
 
         await self.context.author.send(embed=embed)

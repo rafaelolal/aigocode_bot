@@ -122,6 +122,11 @@ class ProblemView(discord.ui.View):
             json['iversion'] = '15.0.2'
             json['iextension'] = ''
 
+        elif lang == 'cpp':
+            json['ilanguage'] = 'c++'
+            json['iversion'] = '10.2.0'
+            json['iextension'] = ''
+        
         response = requests.post("https://codingcomp.netlify.app/api/bot/solve", json=json)
         return response.json()
 
